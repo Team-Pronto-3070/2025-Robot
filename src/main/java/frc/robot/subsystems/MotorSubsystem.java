@@ -72,7 +72,7 @@ public class MotorSubsystem extends SubsystemBase {
   public Command driveStart() {
     return runOnce(
         () -> {
-          driveMotor.set(0.5);
+          driveMotor.set(0.1);
         });
   }
 
