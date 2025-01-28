@@ -5,11 +5,32 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
 public class ExampleSubsystem extends SubsystemBase {
+
+  SparkMax motor;
+
   /** Creates a new ExampleSubsystem. */
-  public ExampleSubsystem() {}
+  public ExampleSubsystem() {
+    motor = new SparkMax(3, SparkMax.MotorType.kBrushless);
+    SparkMaxConfig motorConfig = new SparkMaxConfig();
+
+    motorConfig
+        .smartCurrentLimit(10)
+        .idleMode(IdleMode.kBrake);
+
+    motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    // motor.set(0.1);
+  }
 
   /**
    * Example command factory method.
@@ -21,12 +42,20 @@ public class ExampleSubsystem extends SubsystemBase {
     // Subsystem::RunOnce implicitly requires `this` subsystem.
     return runOnce(
         () -> {
-          /* one-time action goes here */
+          motor.set(0.1);
+        });
+  }
+
+  public Command stop() {
+    return runOnce(
+        () -> {
+          motor.set(0);
         });
   }
 
   /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
+   * An example method querying a boolean state of the subsystem (for example, a
+   * digital sensor).
    *
    * @return value of some boolean subsystem state, such as a digital sensor.
    */

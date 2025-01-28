@@ -9,6 +9,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -48,7 +49,11 @@ public class RobotContainer {
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    m_exampleSubsystem.setDefaultCommand(m_exampleSubsystem.run(m_exampleSubsystem::stop));
+    m_driverController.a().onTrue(m_exampleSubsystem.exampleMethodCommand());
+    m_driverController.b().onTrue(m_exampleSubsystem.stop());
+
+    // m_exampleSubsystem.setDefaultCommand(m_exampleSubsystem.run(m_exampleSubsystem::));
   }
 
   /**
