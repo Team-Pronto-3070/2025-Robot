@@ -8,6 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.MotorSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -22,18 +23,40 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final MotorSubsystem motorSubsystem = new MotorSubsystem();
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController = new CommandXboxController(
-      OperatorConstants.kDriverControllerPort);
+  private final OI oi = new OI();
+  private final MotorSubsystem motorSubsystem = new MotorSubsystem();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     // Configure the trigger bindings
-    configureBindings();
+
+    // motorSubsystem.setDefaultCommand(motorSubsystem.run(() -> {
+    // motorSubsystem.driveAnalog(oi.driveAnalog.getAsDouble());
+    // }));
+
+    // oi.rt.whileTrue(motorSubsystem.run(() -> {
+    //   System.out.println(oi.driveAnalog.getAsDouble());
+    //   // motorSubsystem.runOnce(() -> {
+    //   //   motorSubsystem.driveStart(0.1);
+    //   // });
+    //   motorSubsystem.driveStart(oi.driveAnalog);
+    // }));
+
+    // oi.rt.whileTrue(motorSubsystem.run(() ->
+    // {System.out.println(oi.driveAnalog.getAsDouble());}));
+
+    oi.a.onTrue(motorSubsystem.driveStart(0.1));
+    oi.a.onFalse(motorSubsystem.driveStop());
+    oi.b.onTrue(motorSubsystem.driveStart(-0.1));
+    oi.b.onFalse(motorSubsystem.driveStop());
+
+    oi.x.onTrue(motorSubsystem.turnStart(0.1));
+    oi.x.onFalse(motorSubsystem.turnStop());
+    oi.y.onTrue(motorSubsystem.turnStart(-0.1));
+    oi.y.onFalse(motorSubsystem.turnStop());
   }
 
   /**
@@ -50,19 +73,6 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureBindings() {
-
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-    // pressed,
-    // cancelling on release.
-    // motorSubsystem.setDefaultCommand(motorSubsystem.run(motorSubsystem::stop));
-    m_driverController.a().onTrue(motorSubsystem.turnStart());
-    m_driverController.b().onTrue(motorSubsystem.turnStop());
-    m_driverController.x().onTrue(motorSubsystem.driveStart());
-    m_driverController.y().onTrue(motorSubsystem.driveStop());
-
-    // m_exampleSubsystem.setDefaultCommand(m_exampleSubsystem.run(m_exampleSubsystem::));
-  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

@@ -14,12 +14,11 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
+
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -55,10 +54,10 @@ public class MotorSubsystem extends SubsystemBase {
     driveConfig.apply(currentLimitsConfig);
   }
 
-  public Command turnStart() {
+  public Command turnStart(double speed) {
     return runOnce(
         () -> {
-          turnMotor.set(0.1);
+          turnMotor.set(speed);
         });
   }
 
@@ -69,10 +68,10 @@ public class MotorSubsystem extends SubsystemBase {
         });
   }
 
-  public Command driveStart() {
+  public Command driveStart(DoubleSupplier speed) {
     return runOnce(
         () -> {
-          driveMotor.set(0.1);
+          driveMotor.set(speed.getAsDouble());
         });
   }
 
@@ -83,9 +82,23 @@ public class MotorSubsystem extends SubsystemBase {
         });
   }
 
+  public Command driveAnalog(double speed) {
+    return runOnce(() -> {
+      driveMotor.set(speed);
+    });
+  }
+  
+  public Command print() {
+    return runOnce(() -> {
+      System.out.println("Left Trigger Changed: ");
+    });
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    // driveAnalog(oi.driveAnalog.getAsDouble());
   }
 
   @Override
