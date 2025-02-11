@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OI;
+import frc.robot.OI;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
