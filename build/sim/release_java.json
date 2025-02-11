@@ -1,0 +1,21 @@
+[
+  {
+    "type": "java",
+    "name": "jar (in project 2025-Robot)",
+    "extensions": [
+      {
+        "name": "Sim GUI",
+        "libName": "/Users/gj0987888/Documents/GitHub/2025-Robot/build/jni/release/libhalsim_gui.dylib",
+        "defaultEnabled": true
+      },
+      {
+        "name": "Use Real DriverStation",
+        "libName": "/Users/gj0987888/Documents/GitHub/2025-Robot/build/jni/release/libhalsim_ds_socket.dylib",
+        "defaultEnabled": false
+      }
+    ],
+    "environment": {},
+    "libraryDir": "/Users/gj0987888/Documents/GitHub/2025-Robot/build/jni/release",
+    "mainClassName": "frc.robot.Main"
+  }
+]

@@ -4,13 +4,11 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.MotorSubsystem;
+import edu.wpi.first.units.measure.Power;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -33,30 +31,10 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
 
-    // motorSubsystem.setDefaultCommand(motorSubsystem.run(() -> {
-    // motorSubsystem.driveAnalog(oi.driveAnalog.getAsDouble());
-    // }));
-
-    // oi.rt.whileTrue(motorSubsystem.run(() -> {
-    //   System.out.println(oi.driveAnalog.getAsDouble());
-    //   // motorSubsystem.runOnce(() -> {
-    //   //   motorSubsystem.driveStart(0.1);
-    //   // });
-    //   motorSubsystem.driveStart(oi.driveAnalog);
-    // }));
-
-    // oi.rt.whileTrue(motorSubsystem.run(() ->
-    // {System.out.println(oi.driveAnalog.getAsDouble());}));
-
-    oi.a.onTrue(motorSubsystem.driveStart(0.1));
-    oi.a.onFalse(motorSubsystem.driveStop());
-    oi.b.onTrue(motorSubsystem.driveStart(-0.1));
-    oi.b.onFalse(motorSubsystem.driveStop());
-
-    oi.x.onTrue(motorSubsystem.turnStart(0.1));
-    oi.x.onFalse(motorSubsystem.turnStop());
-    oi.y.onTrue(motorSubsystem.turnStart(-0.1));
-    oi.y.onFalse(motorSubsystem.turnStop());
+    motorSubsystem.setDefaultCommand(motorSubsystem.run(() -> {
+      motorSubsystem.driveStart(oi.leftJoystickY.getAsDouble() / -6);
+      motorSubsystem.turnStart(oi.leftJoystickX.getAsDouble() / -10);
+    }));
   }
 
   /**

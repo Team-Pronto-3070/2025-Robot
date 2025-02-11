@@ -4,17 +4,15 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
+import java.lang.reflect.Array;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -26,68 +24,58 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class MotorSubsystem extends SubsystemBase {
 
-  SparkMax turnMotor;
+  // SparkMax turnMotor;
+  TalonFX turnMotor;
   TalonFX driveMotor;
+
+  Double turnSpeed;
+  Double driveSpeed;
 
   /** Creates a new ExampleSubsystem. */
   public MotorSubsystem() {
-    turnMotor = new SparkMax(3, SparkMax.MotorType.kBrushless);
-    driveMotor = new TalonFX(5);
+    // turnMotor = new SparkMax(3, SparkMax.MotorType.kBrushless);
+    turnMotor = new TalonFX(2);
+    driveMotor = new TalonFX(1);
 
-    SparkMaxConfig turnConfig = new SparkMaxConfig();
+    driveSpeed = 0.0;
+    turnSpeed = 0.0;
+
+    TalonFXConfigurator turnConfig = driveMotor.getConfigurator();
     TalonFXConfigurator driveConfig = driveMotor.getConfigurator();
-
-    turnConfig
-        .smartCurrentLimit(10)
-        .idleMode(IdleMode.kBrake);
-
-    turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     var motorConfigs = new MotorOutputConfigs();
     motorConfigs.Inverted = InvertedValue.Clockwise_Positive;
     motorConfigs.NeutralMode = NeutralModeValue.Brake;
+    turnConfig.apply(motorConfigs);
     driveConfig.apply(motorConfigs);
 
     var currentLimitsConfig = new CurrentLimitsConfigs();
     currentLimitsConfig.SupplyCurrentLimitEnable = true;
     currentLimitsConfig.SupplyCurrentLimit = 10;
+    turnConfig.apply(currentLimitsConfig);
     driveConfig.apply(currentLimitsConfig);
   }
 
-  public Command turnStart(double speed) {
-    return runOnce(
-        () -> {
-          turnMotor.set(speed);
-        });
+  public void turnStart(double speed) {
+    turnMotor.set(speed);
+    turnSpeed = speed;
   }
 
-  public Command turnStop() {
-    return runOnce(
-        () -> {
-          turnMotor.set(0);
-        });
+  public void turnStop() {
+    turnMotor.set(0);
+    turnSpeed = 0.0;
   }
 
-  public Command driveStart(DoubleSupplier speed) {
-    return runOnce(
-        () -> {
-          driveMotor.set(speed.getAsDouble());
-        });
+  public void driveStart(Double speed) {
+    driveMotor.set(speed);
+    driveSpeed = speed;
   }
 
-  public Command driveStop() {
-    return runOnce(
-        () -> {
-          driveMotor.set(0);
-        });
+  public void driveStop() {
+    driveMotor.set(0);
+    driveSpeed = 0.0;
   }
 
-  public Command driveAnalog(double speed) {
-    return runOnce(() -> {
-      driveMotor.set(speed);
-    });
-  }
-  
   public Command print() {
     return runOnce(() -> {
       System.out.println("Left Trigger Changed: ");
@@ -98,7 +86,11 @@ public class MotorSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
 
-    // driveAnalog(oi.driveAnalog.getAsDouble());
+    Double[] values = {driveSpeed, turnSpeed};
+    SmartDashboard.putNumberArray("Motor Speeds", values);
+    
+    SmartDashboard.putNumber("Drive Speed", driveSpeed);
+    SmartDashboard.putNumber("Turn Speed", turnSpeed);
   }
 
   @Override

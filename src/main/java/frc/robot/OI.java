@@ -20,6 +20,11 @@ public class OI {
 
     public final DoubleSupplier driveAnalog;
 
+    public final DoubleSupplier leftJoystickX;
+    public final DoubleSupplier leftJoystickY;
+    public final DoubleSupplier rightJoystickX;
+    public final DoubleSupplier rightJoystickY;
+
     public OI() {
         a = driver.a();
         b = driver.b();
@@ -28,6 +33,11 @@ public class OI {
 
         rt = driver.rightTrigger();
         driveAnalog = driver::getRightTriggerAxis;
+
+        leftJoystickX = driver::getLeftX;
+        leftJoystickY = driver::getLeftY;
+        rightJoystickX = driver::getRightX;
+        rightJoystickY = driver::getRightY;
     }
 
 }
