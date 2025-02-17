@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-// import frc.robot.utils.ADIS16470_IMU;
 import frc.robot.utils.SwerveDriveKinematics2;
 import frc.robot.utils.SwerveModule;
 import frc.robot.utils.SwerveModuleState2;
@@ -32,10 +31,10 @@ public class SwerveSubsystem extends SubsystemBase {
   private final Field2d field;
 
   public SwerveSubsystem() {
-    frontLeft = new SwerveModule(Constants.Swerve.FrontLeft.driveID, Constants.Swerve.FrontLeft.turnID, Constants.Swerve.FrontLeft.offset);
-    frontRight = new SwerveModule(Constants.Swerve.FrontRight.driveID, Constants.Swerve.FrontRight.turnID, Constants.Swerve.FrontRight.offset);
-    rearLeft = new SwerveModule(Constants.Swerve.RearLeft.driveID, Constants.Swerve.RearLeft.turnID, Constants.Swerve.RearLeft.offset);
-    rearRight = new SwerveModule(Constants.Swerve.RearRight.driveID, Constants.Swerve.RearRight.turnID, Constants.Swerve.RearRight.offset);
+    frontLeft = new SwerveModule(Constants.Swerve.FrontLeft.driveID, Constants.Swerve.FrontLeft.turnID, Constants.Swerve.FrontLeft.encoderId, Constants.Swerve.FrontLeft.offset);
+    frontRight = new SwerveModule(Constants.Swerve.FrontRight.driveID, Constants.Swerve.FrontRight.turnID, Constants.Swerve.FrontRight.encoderId, Constants.Swerve.FrontRight.offset);
+    rearLeft = new SwerveModule(Constants.Swerve.RearLeft.driveID, Constants.Swerve.RearLeft.turnID, Constants.Swerve.RearLeft.encoderId, Constants.Swerve.RearLeft.offset);
+    rearRight = new SwerveModule(Constants.Swerve.RearRight.driveID, Constants.Swerve.RearRight.turnID, Constants.Swerve.RearRight.encoderId, Constants.Swerve.RearRight.offset);
 
     gyro = new Pigeon2(Constants.gyroID);
 

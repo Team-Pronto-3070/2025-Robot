@@ -23,7 +23,7 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
-  public static final int gyroID = 0;
+  public static final int gyroID = 13;
 
   public static final class OI {
     public static final int driverPort = 0;
@@ -59,33 +59,31 @@ public final class Constants {
 
     // offsets are in radians
     public static final class FrontLeft {
-      public static final int driveID = 2;
-      public static final int turnID = 6;
-      public static final double offset = -Math.PI / 2;
+      public static final int driveID = 12;
+      public static final int encoderId = 11;
+      public static final int turnID = 10;
+      public static final double offset = Math.toRadians(-45);
     }
 
     public static final class FrontRight {
-      // public static final int driveID = 3;
-      // public static final int turnID = 7;
-      public static final int driveID = 1;
-      public static final int turnID = 5;
-      public static final double offset = 0.0;
+      public static final int driveID = 3;
+      public static final int encoderId = 2;
+      public static final int turnID = 1;
+      public static final double offset = Math.toRadians(-135);
     }
 
     public static final class RearLeft {
-      // public static final int driveID = 2;
-      // public static final int turnID = 6;
-      public static final int driveID = 4;
-      public static final int turnID = 8;
-      public static final double offset = Math.PI;
+      public static final int driveID = 9;
+      public static final int encoderId = 8;
+      public static final int turnID = 7;
+      public static final double offset = Math.toRadians(45);
     }
 
     public static final class RearRight {
-      // public static final int driveID = 1;
-      // public static final int turnID = 5;
-      public static final int driveID = 3;
-      public static final int turnID = 7;
-      public static final double offset = Math.PI / 2;
+      public static final int driveID = 6;
+      public static final int encoderId = 5;
+      public static final int turnID = 4;
+      public static final double offset = Math.toRadians(135);
     }
 
     public static final class Drive {
@@ -117,7 +115,6 @@ public final class Constants {
     }
 
     public static final class Turn {
-      public static final int encoderId = 0; // radians
       public static final double encoderPositionFactor = 2 * Math.PI; // radians
       public static final double encoderVelocityFactor = 2 * Math.PI / 60.0; // radians per second
       public static final boolean encoderInvert = true;
