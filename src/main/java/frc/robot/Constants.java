@@ -31,7 +31,7 @@ public final class Constants {
     public static final double deadband = 0.04;
     public static final double triggerDeadband = 0.3;
 
-    public static final double slowSpeed = 0.3;
+    public static final double slowSpeed = 0.1;
   }
 
   public static final class Swerve {
