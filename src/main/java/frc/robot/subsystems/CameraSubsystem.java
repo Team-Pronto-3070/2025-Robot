@@ -1,10 +1,12 @@
 package frc.robot.subsystems;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.proto.Photon;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -14,8 +16,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Unit;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class CameraSubsystem extends SubsystemBase {
@@ -23,8 +23,7 @@ public class CameraSubsystem extends SubsystemBase {
     private PhotonCamera camera;
     private PhotonPoseEstimator photonPoseEstimator;
     private Pose3d estimatedPose = new Pose3d();
-    private long poseTime = 0;
-    private Command callback;
+    private double poseTime = 0;
 
     public CameraSubsystem() {
         // Initialize the camera subsystem here
@@ -50,18 +49,18 @@ public class CameraSubsystem extends SubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
 
-        var images = camera.getAllUnreadResults();
+        // Get the latest image from the camera
+        List<PhotonPipelineResult> images = camera.getAllUnreadResults();
         if (images.size() > 0) {
-            var image = images.get(0);
+            PhotonPipelineResult image = images.get(0);
 
             photonPoseEstimator.setReferencePose(estimatedPose);
-            var optional = photonPoseEstimator.update(image);
+            Optional<EstimatedRobotPose> optional = photonPoseEstimator.update(image);
 
             if (optional.isPresent()) {
                 EstimatedRobotPose newEstimatedPose = optional.get();
                 estimatedPose = newEstimatedPose.estimatedPose;
-                poseTime = System.currentTimeMillis();
-                callback.schedule();
+                poseTime = image.getTimestampSeconds();
             }
         }
     }
@@ -71,12 +70,8 @@ public class CameraSubsystem extends SubsystemBase {
     }
 
     // time of last calculated pose in milliseconds
-    public long getPoseTime() {
+    public double getPoseTime() {
         return poseTime;
-    }
-
-    public void setCallback(Command cb) {
-        callback = cb; 
     }
 
 }
