@@ -5,6 +5,8 @@
 package frc.robot;
 
 import frc.robot.OI;
+import frc.robot.subsystems.CameraSubsystem;
+import frc.robot.subsystems.DataSubsystem;
 // import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -12,8 +14,15 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import static edu.wpi.first.units.Units.*;
+
+import java.sql.Time;
+
+import javax.xml.crypto.Data;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -27,8 +36,9 @@ import static edu.wpi.first.units.Units.*;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final OI oi = new OI();
-  public final SwerveSubsystem swerve = SwerveConstants.createDrivetrain();
-  // private final SwerveSubsystem swerve = new SwerveSubsystem();
+  private final SwerveSubsystem swerve = SwerveConstants.createDrivetrain();
+  private final CameraSubsystem cameraSubsystem = new CameraSubsystem();
+  private final DataSubsystem dataSubsystem = new DataSubsystem();
 
   private double MaxSpeed = SwerveConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
                                                                                  // speed
@@ -50,6 +60,43 @@ public class RobotContainer {
     // oi.processed_drive_rot.getAsDouble(),
     // true,
     // true)));
+
+    Sendable sendable = new Sendable() {
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("SwerveDrive");
+
+        var frontLeftModule = swerve.getModules()[0];
+        var frontRightModule = swerve.getModules()[1];
+        var backLeftModule = swerve.getModules()[2];
+        var backRightModule = swerve.getModules()[3];
+
+        builder.addDoubleProperty("Front Left Angle",
+            () -> frontLeftModule.getEncoder().getAbsolutePosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("Front Left Velocity",
+            () -> frontLeftModule.getDriveMotor().getVelocity().getValueAsDouble(), null);
+
+        builder.addDoubleProperty("Front Right Angle",
+            () -> frontRightModule.getEncoder().getAbsolutePosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("Front Right Velocity",
+            () -> frontRightModule.getDriveMotor().getVelocity().getValueAsDouble(), null);
+
+        builder.addDoubleProperty("Back Left Angle",
+            () -> backLeftModule.getEncoder().getAbsolutePosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("Back Left Velocity",
+            () -> backLeftModule.getDriveMotor().getVelocity().getValueAsDouble(), null);
+
+        builder.addDoubleProperty("Back Right Angle",
+            () -> backRightModule.getEncoder().getAbsolutePosition().getValueAsDouble(), null);
+        builder.addDoubleProperty("Back Right Velocity",
+            () -> backRightModule.getDriveMotor().getVelocity().getValueAsDouble(), null);
+
+        builder.addDoubleProperty("Robot Angle", () -> swerve.getRotation3d().toRotation2d().getRadians(), null);
+      }
+    };
+
+    SmartDashboard.putData("Swerve Drive", sendable);
+
     swerve.setDefaultCommand(
         // Drivetrain will execute this command periodically
         swerve.applyRequest(() -> drive.withVelocityX(oi.processed_drive_x.getAsDouble() * -MaxSpeed) // Drive forward
@@ -61,7 +108,29 @@ public class RobotContainer {
         ));
 
     oi.gyroReset.onTrue(swerve.runOnce(() -> {
-      swerve.resetPose(new Pose2d());
+      // swerve.resetPose(new Pose2d());
+      swerve.tareEverything();
+    }));
+
+    // swerve.resetPose(cameraSubsystem.getPose().toPose2d());
+
+    cameraSubsystem.setCallback(cameraSubsystem.run(() -> {
+      // swerve.addVisionMeasurement(cameraSubsystem.getPose().toPose2d(),
+      // cameraSubsystem.getPoseTime() / 1000);
+      swerve.resetPose(cameraSubsystem.getPose().toPose2d());
+    }));
+
+    // cameraSubsystem.setDefaultCommand(cameraSubsystem.run(() -> {
+      // System.out.println(cameraSubsystem.getPose().toPose2d());
+      // System.out.println(cameraSubsystem.getPoseTime() / 1000);
+      // cameraSubsystem.getPoseTime() / 1000);
+      // swerve.addVisionMeasurement(cameraSubsystem.getPose().toPose2d(),
+      // swerve.resetPose(cameraSubsystem.getPose().toPose2d());
+    // }));
+
+    dataSubsystem.setDefaultCommand(dataSubsystem.run(() -> {
+      dataSubsystem.update(swerve.getState().Pose);
+      // dataSubsystem.update(cameraSubsystem.getPose().toPose2d());
     }));
   }
 
