@@ -23,8 +23,6 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
-  public static final int gyroID = 13;
-
   public static final class OI {
     public static final int driverPort = 0;
     public static final int operatorPort = 1;
@@ -32,6 +30,11 @@ public final class Constants {
     public static final double triggerDeadband = 0.3;
 
     public static final double slowSpeed = 0.1;
+  }
+
+  public static final class Elevator {
+    public static final int leftID = 13;
+    public static final int rightID = 14;
   }
 
   public static final class Swerve {

@@ -20,8 +20,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class CameraSubsystem extends SubsystemBase {
 
-    private PhotonCamera camera;
-    private PhotonPoseEstimator photonPoseEstimator;
+    private PhotonCamera cameraF;
+    private PhotonCamera cameraB;
+    private PhotonPoseEstimator photonPoseEstimatorF;
+    private PhotonPoseEstimator photonPoseEstimatorB;
     private Pose3d estimatedPose = new Pose3d();
     private double poseTime = 0;
 
@@ -32,36 +34,85 @@ public class CameraSubsystem extends SubsystemBase {
         AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
         // Forward Camera
-        camera = new PhotonCamera("Arducam_1");
+        cameraF = new PhotonCamera("Arducam_Front");
+        cameraB = new PhotonCamera("Arducam_Rear");
 
-        Transform3d robotToCam = new Transform3d(new Translation3d(
-                Units.inchesToMeters(-13.5), // 13.5 inches back from center
-                0.0, // 0 inches left from center
-                Units.inchesToMeters(5)), // 5 inches up from center
-                new Rotation3d(0, Units.degreesToRadians(20), Math.PI)); // facing backward, 20 degrees up
+        Transform3d robotToCamF = new Transform3d(
+                new Translation3d(
+                        Units.inchesToMeters(13.5), // 13.5 inches forwards from center
+                        Units.inchesToMeters(3), // 3 inches left from center
+                        Units.inchesToMeters(6.5)), // 6.5 inches up from center
+                new Rotation3d(
+                        Units.degreesToRadians(0), // forwards
+                        Units.degreesToRadians(20), // 20 degrees upwards
+                        Units.degreesToRadians(0))); // facing backwards
+
+        Transform3d robotToCamB = new Transform3d(
+                new Translation3d(
+                        Units.inchesToMeters(-13.5), // 13.5 inches back from center
+                        Units.inchesToMeters(0), // 0 inches left from center
+                        Units.inchesToMeters(5)), // 5 inches up from center
+                new Rotation3d(
+                        Units.degreesToRadians(0), // forwards
+                        Units.degreesToRadians(20), // 20 degrees upwards
+                        Units.degreesToRadians(180))); // facing backwards
 
         // Construct PhotonPoseEstimator
-        photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                PoseStrategy.CLOSEST_TO_REFERENCE_POSE, robotToCam);
+        photonPoseEstimatorF = new PhotonPoseEstimator(aprilTagFieldLayout,
+                PoseStrategy.CLOSEST_TO_REFERENCE_POSE, robotToCamF);
+        photonPoseEstimatorB = new PhotonPoseEstimator(aprilTagFieldLayout,
+                PoseStrategy.CLOSEST_TO_REFERENCE_POSE, robotToCamB);
     }
 
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
 
-        // Get the latest image from the camera
-        List<PhotonPipelineResult> images = camera.getAllUnreadResults();
-        if (images.size() > 0) {
-            PhotonPipelineResult image = images.get(0);
+        boolean changed = false;
+        double imageTime = 0;
 
-            photonPoseEstimator.setReferencePose(estimatedPose);
-            Optional<EstimatedRobotPose> optional = photonPoseEstimator.update(image);
+        Pose3d fPose = new Pose3d();
+        Pose3d bPose = new Pose3d();
+
+        // Get the latest image from the camera
+        List<PhotonPipelineResult> imagesF = cameraF.getAllUnreadResults();
+        List<PhotonPipelineResult> imagesB = cameraB.getAllUnreadResults();
+
+        if (imagesF.size() > 0) {
+            PhotonPipelineResult image = imagesF.get(0);
+
+            photonPoseEstimatorF.setReferencePose(estimatedPose);
+            Optional<EstimatedRobotPose> optional = photonPoseEstimatorF.update(image);
 
             if (optional.isPresent()) {
                 EstimatedRobotPose newEstimatedPose = optional.get();
-                estimatedPose = newEstimatedPose.estimatedPose;
-                poseTime = image.getTimestampSeconds();
+                fPose = newEstimatedPose.estimatedPose;
+                imageTime = image.getTimestampSeconds();
+                changed = true;
             }
+        }
+
+        if (imagesB.size() > 0) {
+            PhotonPipelineResult image = imagesB.get(0);
+
+            photonPoseEstimatorB.setReferencePose(estimatedPose);
+            Optional<EstimatedRobotPose> optional = photonPoseEstimatorB.update(image);
+
+            if (optional.isPresent()) {
+                EstimatedRobotPose newEstimatedPose = optional.get();
+                bPose = newEstimatedPose.estimatedPose;
+                if (changed) {
+                    imageTime = (imageTime + image.getTimestampSeconds()) / 2;
+                } else {
+                    changed = true;
+                    imageTime = image.getTimestampSeconds();
+                }
+            }
+        }
+
+        if (changed) {
+            estimatedPose = fPose;
+            poseTime = imageTime;
         }
     }
 

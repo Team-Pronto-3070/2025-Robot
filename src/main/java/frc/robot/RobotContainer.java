@@ -6,6 +6,8 @@ package frc.robot;
 
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DataSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -14,6 +16,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import static edu.wpi.first.units.Units.*;
 
@@ -32,6 +35,8 @@ public class RobotContainer {
   private final SwerveSubsystem swerve = SwerveConstants.createDrivetrain();
   private final CameraSubsystem cameraSubsystem = new CameraSubsystem();
   private final DataSubsystem dataSubsystem = new DataSubsystem();
+  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+  private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
   private double MaxSpeed = SwerveConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
                                                                                  // speed
@@ -49,12 +54,9 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    // swerve.setDefaultCommand(swerve.run(() -> swerve.drive(
-    // oi.processed_drive_x.getAsDouble(),
-    // oi.processed_drive_y.getAsDouble(),
-    // oi.processed_drive_rot.getAsDouble(),
-    // true,
-    // true)));
+
+    // ledSubsystem.setColor(Color.kBlack);
+    ledSubsystem.setPattern(ledSubsystem.scrollingRainbow);
 
     Sendable sendable = new Sendable() {
       @Override
@@ -122,6 +124,22 @@ public class RobotContainer {
     dataSubsystem.setDefaultCommand(dataSubsystem.run(() -> {
       dataSubsystem.update(swerve.getState().Pose);
       // dataSubsystem.update(cameraSubsystem.getPose().toPose2d());
+    }));
+
+    oi.elevatorUp.onTrue(elevatorSubsystem.run(() -> {
+      elevatorSubsystem.set(0.1);
+    }));
+
+    oi.elevatorUp.onFalse(elevatorSubsystem.run(() -> {
+      elevatorSubsystem.set(0.0);
+    }));
+
+    oi.elevatorDown.onTrue(elevatorSubsystem.run(() -> {
+      elevatorSubsystem.set(-0.1);
+    }));
+
+    oi.elevatorDown.onFalse(elevatorSubsystem.run(() -> {
+      elevatorSubsystem.set(0.0);
     }));
   }
 
