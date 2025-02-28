@@ -28,7 +28,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final OI oi = new OI();
   public final SwerveSubsystem swerve = SwerveConstants.createDrivetrain();
-  // private final SwerveSubsystem swerve = new SwerveSubsystem();
+  private final Autos autos = new Autos(swerve, null);
 
   private double MaxSpeed = SwerveConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
                                                                                  // speed
@@ -66,7 +66,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return null;
+    return autos.getAutonomousCommand();
   }
 }
