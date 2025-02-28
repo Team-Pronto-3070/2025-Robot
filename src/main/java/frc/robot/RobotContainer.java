@@ -55,8 +55,8 @@ public class RobotContainer {
    */
   public RobotContainer() {
 
-    // ledSubsystem.setColor(Color.kBlack);
-    ledSubsystem.setPattern(ledSubsystem.scrollingRainbow);
+    ledSubsystem.setColor(Color.fromHSV(3, 255, 100));
+    // ledSubsystem.setPattern(ledSubsystem.scrollingRainbow);
 
     Sendable sendable = new Sendable() {
       @Override
@@ -126,20 +126,12 @@ public class RobotContainer {
       // dataSubsystem.update(cameraSubsystem.getPose().toPose2d());
     }));
 
-    oi.elevatorUp.onTrue(elevatorSubsystem.run(() -> {
-      elevatorSubsystem.set(0.1);
+    oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> {
+      elevatorSubsystem.moveUp(31.5);
     }));
 
-    oi.elevatorUp.onFalse(elevatorSubsystem.run(() -> {
-      elevatorSubsystem.set(0.0);
-    }));
-
-    oi.elevatorDown.onTrue(elevatorSubsystem.run(() -> {
-      elevatorSubsystem.set(-0.1);
-    }));
-
-    oi.elevatorDown.onFalse(elevatorSubsystem.run(() -> {
-      elevatorSubsystem.set(0.0);
+    oi.elevatorDown.onTrue(elevatorSubsystem.runOnce(() -> {
+      elevatorSubsystem.moveDown();
     }));
   }
 

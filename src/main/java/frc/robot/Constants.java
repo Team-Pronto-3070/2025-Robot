@@ -33,8 +33,11 @@ public final class Constants {
   }
 
   public static final class Elevator {
-    public static final int leftID = 13;
-    public static final int rightID = 14;
+    public static final int leftID = 14;
+    public static final int rightID = 13;
+    public static final double inToR = 1.67; // 50/29.75
+    public static final double minHeight = 0;
+    public static final double maxHeight = 31.5;
   }
 
   public static final class Swerve {
