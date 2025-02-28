@@ -55,7 +55,7 @@ public class RobotContainer {
    */
   public RobotContainer() {
 
-    ledSubsystem.setColor(Color.fromHSV(3, 255, 100));
+    ledSubsystem.breathe(Color.fromHSV(3, 255, 100), 8);
     // ledSubsystem.setPattern(ledSubsystem.scrollingRainbow);
 
     Sendable sendable = new Sendable() {

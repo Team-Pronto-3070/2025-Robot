@@ -54,10 +54,17 @@ public class LEDSubsystem extends SubsystemBase {
 
     public void setColor(Color c) {
         // Create an LED pattern that sets the entire strip to solid red
-        pattern = LEDPattern.solid(c).breathe(Time.ofBaseUnits(10, Units.Seconds));
+        pattern = LEDPattern.solid(c);
         // pattern.applyTo(buffer);
         // led.setData(buffer);
-    }
+    } 
+
+    public void breathe(Color c, double seconds) {
+        // Create an LED pattern that sets the entire strip to solid red
+        pattern = LEDPattern.solid(c).breathe(Time.ofBaseUnits(seconds, Units.Seconds));
+        // pattern.applyTo(buffer);
+        // led.setData(buffer);
+    }   
 
     public void setPattern(LEDPattern p) {
         // Update the buffer with the rainbow animation
