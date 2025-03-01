@@ -13,25 +13,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "D to Coral Station"
+            "pathName": "D to Coral Station R"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Coral Station to C"
+            "pathName": "Coral Station to C R"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "C to Coral Station"
+            "pathName": "C to Coral Station R"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Coral Station to B"
+            "pathName": "Coral Station to B R"
           }
         }
       ]

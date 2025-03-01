@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.726832812173026,
-        "y": 1.9002366610935757
+        "x": 1.2174819536562307,
+        "y": 7.0146485279224535
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.63451160564337,
-        "y": 2.188192084464075
+        "x": 1.8397446924271927,
+        "y": 6.518020974911815
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Coral Station L"
     },
     {
       "anchor": {
-        "x": 5.167338711773907,
-        "y": 2.873611139368128
+        "x": 3.6723338374385115,
+        "y": 5.101248120908384
       },
       "prevControl": {
-        "x": 5.629796709669598,
-        "y": 2.6979226519347637
+        "x": 2.7869608811915145,
+        "y": 5.7458254647842795
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "L"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": -59.99999999999999
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -55.0
   },
   "useDefaultConstraints": true
 }
