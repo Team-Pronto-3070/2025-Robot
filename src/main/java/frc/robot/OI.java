@@ -24,6 +24,9 @@ public class OI {
 
         public final Trigger gyroReset;
 
+        public final Trigger elevatorUp;
+        public final Trigger elevatorDown;
+
         public OI() {
                 driver = new CommandXboxController(Constants.OI.driverPort);
                 operator = new CommandXboxController(Constants.OI.operatorPort);
@@ -65,5 +68,8 @@ public class OI {
                                                                                 1 - Constants.OI.slowSpeed)
                                                 : Constants.OI.slowSpeed)
                                 * 0.75;
+
+                elevatorUp = driver.povUp();
+                elevatorDown = driver.povDown();
         }
 }

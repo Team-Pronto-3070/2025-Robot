@@ -48,7 +48,8 @@ public class SwerveConstants {
 
     // The remote sensor feedback type to use for the steer motors;
     // When not Pro-licensed, Fused*/Sync* automatically fall back to Remote*
-    private static final SteerFeedbackType kSteerFeedbackType = SteerFeedbackType.FusedCANcoder;
+//     private static final SteerFeedbackType kSteerFeedbackType = SteerFeedbackType.FusedCANCoder;
+    private static final SteerFeedbackType kSteerFeedbackType = SteerFeedbackType.RemoteCANcoder; // manually override to avoid boot warning
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
@@ -92,7 +93,7 @@ public class SwerveConstants {
     private static final boolean kInvertLeftSide = false;
     private static final boolean kInvertRightSide = true;
 
-    private static final int kPigeonId = 13;
+    private static final int kPigeonId = 15;
 
     // These are only used for simulation
     private static final MomentOfInertia kSteerInertia = KilogramSquareMeters.of(0.01);
