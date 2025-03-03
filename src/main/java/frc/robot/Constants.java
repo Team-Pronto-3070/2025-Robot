@@ -7,6 +7,9 @@ package frc.robot;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -32,12 +35,50 @@ public final class Constants {
     public static final double slowSpeed = 0.1;
   }
 
+  public static final class Vision {
+
+    public static final class Front {
+
+      public static final String name = "Arducam_Front";
+      public static final Transform3d transform = new Transform3d(
+          new Translation3d(
+              Units.inchesToMeters(13.5), // 13.5 inches forwards from center
+              Units.inchesToMeters(3), // 3 inches left from center
+              Units.inchesToMeters(6.5)), // 6.5 inches up from center
+          new Rotation3d(
+              Units.degreesToRadians(0), // forwards
+              Units.degreesToRadians(20), // 20 degrees upwards
+              Units.degreesToRadians(0))); // facing backwards
+    }
+
+    public static final class Rear {
+
+      public static final String name = "Arducam_Rear";
+      public static final Transform3d transform = new Transform3d(
+          new Translation3d(
+              Units.inchesToMeters(-13.5), // 13.5 inches back from center
+              Units.inchesToMeters(0), // 0 inches left from center
+              Units.inchesToMeters(5)), // 5 inches up from center
+          new Rotation3d(
+              Units.degreesToRadians(0), // forwards
+              Units.degreesToRadians(20), // 20 degrees upwards
+              Units.degreesToRadians(180))); // facing backwards
+    }
+  }
+
   public static final class Elevator {
     public static final int leftID = 14;
     public static final int rightID = 13;
     public static final double inToR = 1.67; // 50/29.75
     public static final double minHeight = 0;
     public static final double maxHeight = 31.5;
+  }
+
+  public static final class EndEffector {
+    public static final int coralID = 0; // TODO: replace with correct ID
+    public static final int algaeID = 0; // TODO: replace with correct ID
+    public static final int algaeArmID = 0; // TODO: replace with correct ID
+    public static final int beamBreakPort = 0; // TODO: replace with correct port
   }
 
   public static final class Swerve {

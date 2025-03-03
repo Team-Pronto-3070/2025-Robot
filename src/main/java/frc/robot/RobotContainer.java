@@ -30,10 +30,16 @@ import static edu.wpi.first.units.Units.*;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+
   // The robot's subsystems and commands are defined here...
   private final OI oi = new OI();
   private final SwerveSubsystem swerve = SwerveConstants.createDrivetrain();
-  private final CameraSubsystem cameraSubsystem = new CameraSubsystem();
+
+  private final CameraSubsystem frontCamera = new CameraSubsystem(Constants.Vision.Front.name,
+      Constants.Vision.Front.transform);
+  private final CameraSubsystem rearCamera = new CameraSubsystem(Constants.Vision.Rear.name,
+      Constants.Vision.Rear.transform);
+
   private final DataSubsystem dataSubsystem = new DataSubsystem();
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final LEDSubsystem ledSubsystem = new LEDSubsystem();
@@ -109,14 +115,26 @@ public class RobotContainer {
       swerve.tareEverything();
     }));
 
-    cameraSubsystem.setDefaultCommand(cameraSubsystem.run(() -> {
+    frontCamera.setDefaultCommand(frontCamera.run(() -> {
       // swerve.addVisionMeasurement(cameraSubsystem.getPose().toPose2d(),
       // cameraSubsystem.getPoseTime());
 
       // Make sure to only set swerve pose if vision data is new
-      double visionTime = cameraSubsystem.getPoseTime();
+      double visionTime = frontCamera.getPoseTime();
       if (visionTime != lastVisionTime) {
-        swerve.addVisionMeasurement(cameraSubsystem.getPose().toPose2d(), visionTime);
+        swerve.addVisionMeasurement(frontCamera.getPose().toPose2d(), visionTime);
+        lastVisionTime = visionTime;
+      }
+    }));
+
+    rearCamera.setDefaultCommand(rearCamera.run(() -> {
+      // swerve.addVisionMeasurement(cameraSubsystem.getPose().toPose2d(),
+      // cameraSubsystem.getPoseTime());
+
+      // Make sure to only set swerve pose if vision data is new
+      double visionTime = rearCamera.getPoseTime();
+      if (visionTime != lastVisionTime) {
+        swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(), visionTime);
         lastVisionTime = visionTime;
       }
     }));
