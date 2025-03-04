@@ -12,9 +12,11 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -57,9 +59,11 @@ public class RobotContainer {
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
-  private final Autos autos = new Autos(swerve, elevatorSubsystem);
+  // private final Autos autos = new Autos(swerve, elevatorSubsystem);
 
   private double lastVisionTime = 0;
+
+  private final SendableChooser<Command> autoChooser;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -69,41 +73,13 @@ public class RobotContainer {
     ledSubsystem.breathe(Color.fromHSV(3, 255, 100), 8);
     // ledSubsystem.setPattern(ledSubsystem.scrollingRainbow);
 
-    Sendable sendable = new Sendable() {
-      @Override
-      public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("SwerveDrive");
+    // Build an auto chooser. This will use Commands.none() as the default option.
+    autoChooser = AutoBuilder.buildAutoChooser();
 
-        var frontLeftModule = swerve.getModules()[0];
-        var frontRightModule = swerve.getModules()[1];
-        var backLeftModule = swerve.getModules()[2];
-        var backRightModule = swerve.getModules()[3];
+    // Another option that allows you to specify the default auto by its name
+    // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
-        builder.addDoubleProperty("Front Left Angle",
-            () -> frontLeftModule.getEncoder().getAbsolutePosition().getValueAsDouble(), null);
-        builder.addDoubleProperty("Front Left Velocity",
-            () -> frontLeftModule.getDriveMotor().getVelocity().getValueAsDouble(), null);
-
-        builder.addDoubleProperty("Front Right Angle",
-            () -> frontRightModule.getEncoder().getAbsolutePosition().getValueAsDouble(), null);
-        builder.addDoubleProperty("Front Right Velocity",
-            () -> frontRightModule.getDriveMotor().getVelocity().getValueAsDouble(), null);
-
-        builder.addDoubleProperty("Back Left Angle",
-            () -> backLeftModule.getEncoder().getAbsolutePosition().getValueAsDouble(), null);
-        builder.addDoubleProperty("Back Left Velocity",
-            () -> backLeftModule.getDriveMotor().getVelocity().getValueAsDouble(), null);
-
-        builder.addDoubleProperty("Back Right Angle",
-            () -> backRightModule.getEncoder().getAbsolutePosition().getValueAsDouble(), null);
-        builder.addDoubleProperty("Back Right Velocity",
-            () -> backRightModule.getDriveMotor().getVelocity().getValueAsDouble(), null);
-
-        builder.addDoubleProperty("Robot Angle", () -> swerve.getRotation3d().toRotation2d().getRadians(), null);
-      }
-    };
-
-    SmartDashboard.putData("Swerve Drive", sendable);
+    SmartDashboard.putData("Auto Chooser", autoChooser);
 
     swerve.setDefaultCommand(
         // Drivetrain will execute this command periodically
@@ -132,24 +108,24 @@ public class RobotContainer {
       }
 
     }).ignoringDisable(true));
-    
+
     // rearCamera.setDefaultCommand(rearCamera.run(() -> {
-    //   // swerve.addVisionMeasurement(cameraSubsystem.getPose().toPose2d(),
-    //   // cameraSubsystem.getPoseTime());
-    
-    //   // Make sure to only set swerve pose if vision data is new
-    //   double visionTime = rearCamera.getPoseTime();
-    //   if (visionTime != lastVisionTime) {
-      //     swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(), visionTime);
-    //     lastVisionTime = visionTime;
-    //   }
+    // // swerve.addVisionMeasurement(cameraSubsystem.getPose().toPose2d(),
+    // // cameraSubsystem.getPoseTime());
+
+    // // Make sure to only set swerve pose if vision data is new
+    // double visionTime = rearCamera.getPoseTime();
+    // if (visionTime != lastVisionTime) {
+    // swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(), visionTime);
+    // lastVisionTime = visionTime;
+    // }
     // }).ignoringDisable(true));
 
     // swerve.createAutoFactory;
 
     dataSubsystem.setDefaultCommand(dataSubsystem.run(() -> {
       dataSubsystem.setRobotPose(swerve.getState().Pose);
-      dataSubsystem.setRobotPath(autos.getPath());
+      // dataSubsystem.setRobotPath(autos.getPath());
     }).ignoringDisable(true));
 
     oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> {
@@ -159,11 +135,12 @@ public class RobotContainer {
     oi.elevatorDown.onTrue(elevatorSubsystem.runOnce(() -> {
       elevatorSubsystem.moveDown();
     }));
-    
+
     swerve.registerTelemetry(logger::telemeterize);
   }
 
   public Command getAutonomousCommand() {
-    return autos.getAutonomousCommand();
+    // return autos.getAutonomousCommand();
+    return autoChooser.getSelected();
   }
 }
