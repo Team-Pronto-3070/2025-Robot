@@ -31,28 +31,33 @@ import static edu.wpi.first.units.Units.*;
  */
 public class RobotContainer {
 
-  // The robot's subsystems and commands are defined here...
-  private final OI oi = new OI();
-  private final SwerveSubsystem swerve = SwerveConstants.createDrivetrain();
-
-  private final CameraSubsystem frontCamera = new CameraSubsystem(Constants.Vision.Front.name,
-      Constants.Vision.Front.transform);
-  private final CameraSubsystem rearCamera = new CameraSubsystem(Constants.Vision.Rear.name,
-      Constants.Vision.Rear.transform);
-
-  private final DataSubsystem dataSubsystem = new DataSubsystem();
-  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-  private final LEDSubsystem ledSubsystem = new LEDSubsystem();
-
   private double MaxSpeed = SwerveConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
-                                                                                 // speed
+  // speed
   private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max
-                                                                                    // angular velocity
+  // angular velocity
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+
+  // The robot's subsystems and commands are defined here...
+  private final OI oi = new OI();
+  private final SwerveSubsystem swerve = SwerveConstants.createDrivetrain();
+
+  private final Telemetry logger = new Telemetry(MaxSpeed);
+
+  private final CameraSubsystem frontCamera = new CameraSubsystem(Constants.Vision.Front.name,
+      Constants.Vision.Front.transform);
+  // private final CameraSubsystem rearCamera = new
+  // CameraSubsystem(Constants.Vision.Rear.name,
+  // Constants.Vision.Rear.transform);
+
+  private final DataSubsystem dataSubsystem = new DataSubsystem();
+  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+  private final LEDSubsystem ledSubsystem = new LEDSubsystem();
+
+  private final Autos autos = new Autos(swerve, elevatorSubsystem);
 
   private double lastVisionTime = 0;
 
@@ -125,24 +130,27 @@ public class RobotContainer {
         swerve.addVisionMeasurement(frontCamera.getPose().toPose2d(), visionTime);
         lastVisionTime = visionTime;
       }
-    }));
 
-    rearCamera.setDefaultCommand(rearCamera.run(() -> {
-      // swerve.addVisionMeasurement(cameraSubsystem.getPose().toPose2d(),
-      // cameraSubsystem.getPoseTime());
+    }).ignoringDisable(true));
+    
+    // rearCamera.setDefaultCommand(rearCamera.run(() -> {
+    //   // swerve.addVisionMeasurement(cameraSubsystem.getPose().toPose2d(),
+    //   // cameraSubsystem.getPoseTime());
+    
+    //   // Make sure to only set swerve pose if vision data is new
+    //   double visionTime = rearCamera.getPoseTime();
+    //   if (visionTime != lastVisionTime) {
+      //     swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(), visionTime);
+    //     lastVisionTime = visionTime;
+    //   }
+    // }).ignoringDisable(true));
 
-      // Make sure to only set swerve pose if vision data is new
-      double visionTime = rearCamera.getPoseTime();
-      if (visionTime != lastVisionTime) {
-        swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(), visionTime);
-        lastVisionTime = visionTime;
-      }
-    }));
+    // swerve.createAutoFactory;
 
     dataSubsystem.setDefaultCommand(dataSubsystem.run(() -> {
-      dataSubsystem.update(swerve.getState().Pose);
-      // dataSubsystem.update(cameraSubsystem.getPose().toPose2d());
-    }));
+      dataSubsystem.setRobotPose(swerve.getState().Pose);
+      dataSubsystem.setRobotPath(autos.getPath());
+    }).ignoringDisable(true));
 
     oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> {
       elevatorSubsystem.moveUp(31.5);
@@ -151,10 +159,11 @@ public class RobotContainer {
     oi.elevatorDown.onTrue(elevatorSubsystem.runOnce(() -> {
       elevatorSubsystem.moveDown();
     }));
+    
+    swerve.registerTelemetry(logger::telemeterize);
   }
 
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return null;
+    return autos.getAutonomousCommand();
   }
 }

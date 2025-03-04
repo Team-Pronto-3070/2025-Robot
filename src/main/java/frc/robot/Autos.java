@@ -1,13 +1,19 @@
 package frc.robot;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -26,6 +32,9 @@ public class Autos extends SubsystemBase {
     private final SwerveSubsystem swerve;
 
     private SwerveRequest.ApplyRobotSpeeds drive = new SwerveRequest.ApplyRobotSpeeds();
+
+    private String autoName, newAutoName;
+    private List<Pose2d> poses = new ArrayList<>();
 
     public Autos(SwerveSubsystem swerve, ElevatorSubsystem elevator) {
         this.swerve = swerve;
@@ -125,6 +134,33 @@ public class Autos extends SubsystemBase {
                 }));
     }
 
+    @Override
+    public void periodic() {
+        newAutoName = autoChooser.getSelected().getName();
+        if (autoName != newAutoName) {
+            autoName = newAutoName;
+            if (AutoBuilder.getAllAutoNames().contains(autoName)) {
+                // System.out.println("Displaying " + autoName);
+                try {
+                    List<PathPlannerPath> pathPlannerPaths = PathPlannerAuto.getPathGroupFromAutoFile(autoName);
+                    poses.clear();
+                    for (PathPlannerPath path : pathPlannerPaths) {
+                        poses.addAll(path.getAllPathPoints().stream().map(
+                                point -> new Pose2d(point.position.getX(), point.position.getY(), new Rotation2d()))
+                                .collect(Collectors.toList()));
+                    }
+                } catch (Exception e) {
+                    // TODO: handle exception
+                    System.out.println("Auto Display Exception ): " + e);
+                }
+            }
+        }
+    }
+
+    public List<Pose2d> getPath() {
+        return poses;
+    }
+
     public Pose2d getPose() {
         return swerve.getState().Pose;
     }
@@ -138,7 +174,9 @@ public class Autos extends SubsystemBase {
     }
 
     public void driveRobotRelative(ChassisSpeeds speeds) {
-        swerve.setControl(drive.withSpeeds(speeds));
+        System.out.println(speeds.toString());
+        swerve.setControl(
+        drive.withSpeeds(speeds));
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
