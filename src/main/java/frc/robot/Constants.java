@@ -69,9 +69,18 @@ public final class Constants {
   public static final class Elevator {
     public static final int leftID = 14;
     public static final int rightID = 13;
-    public static final double inToR = 1.67; // 50/29.75
+    public static final double inToR = 1.67; // ~50/29.75
+
     public static final double minHeight = 0;
     public static final double maxHeight = 31.5;
+
+    // Elevator Heights in inches
+    public static final double L0 = 0; // intake
+    public static final double L1 = 12.6; // TODO: calibrate values
+    public static final double L2 = 18.9; // TODO: calibrate values
+    public static final double L3 = 25.2; // TODO: calibrate values
+    public static final double L4 = 31.5; // elevator max height
+
   }
 
   public static final class EndEffector {

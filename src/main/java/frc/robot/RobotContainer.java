@@ -145,7 +145,7 @@ public class RobotContainer {
     }));
 
     oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> {
-      elevatorSubsystem.moveUp(31.5);
+      elevatorSubsystem.moveUp();
     }));
 
     oi.elevatorDown.onTrue(elevatorSubsystem.runOnce(() -> {

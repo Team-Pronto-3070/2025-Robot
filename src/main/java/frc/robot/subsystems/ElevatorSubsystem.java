@@ -17,6 +17,15 @@ public class ElevatorSubsystem extends SubsystemBase {
     public final TalonFX leftMotor;
     public final TalonFX rightMotor;
 
+    private int level = 0;
+    private final double[] levels = {
+            Constants.Elevator.L0,
+            Constants.Elevator.L1,
+            Constants.Elevator.L2,
+            Constants.Elevator.L3,
+            Constants.Elevator.L4,
+    };
+
     public ElevatorSubsystem() {
         // Initialize the elevator subsystem here
         leftMotor = new TalonFX(Constants.Elevator.leftID);
@@ -84,7 +93,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     // Move the elevator up by a specified amount (in sensor units)
-    public void moveUp(double targetHeight) {
+    private void goTo(double targetHeight) {
         final MotionMagicVoltage m_request = new MotionMagicVoltage(0);
 
         leftMotor.setControl(m_request.withPosition(
@@ -96,19 +105,24 @@ public class ElevatorSubsystem extends SubsystemBase {
                 Math.min(Math.max(targetHeight, Constants.Elevator.minHeight),
                         Constants.Elevator.maxHeight)
                         * -Constants.Elevator.inToR));
+    }
 
-        System.out.println("moveUp");
+    // Move the elevator up by a specified amount (in sensor units)
+    public void setLevel(int lvl) {
+        level = lvl;
+        double targetHeight = levels[lvl];
+
+        goTo(targetHeight);
+    }
+
+    // Move the elevator up by a specified amount (in sensor units)
+    public void moveUp() {
+        setLevel(Math.min(level + 1, levels.length - 1));
     }
 
     // Move the elevator down to the bottom
     public void moveDown() {
-        // create a Motion Magic request, voltage output
-        final MotionMagicVoltage m_request = new MotionMagicVoltage(0);
-
-        // set target position to 100 rotations
-        leftMotor.setControl(m_request.withPosition(0));
-        rightMotor.setControl(m_request.withPosition(0));
-
+        setLevel(Math.max(level - 1, 0));
     }
 
     @Override
