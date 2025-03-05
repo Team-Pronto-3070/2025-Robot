@@ -12,7 +12,6 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -55,15 +54,13 @@ public class RobotContainer {
   // CameraSubsystem(Constants.Vision.Rear.name,
   // Constants.Vision.Rear.transform);
 
-  private final DataSubsystem dataSubsystem = new DataSubsystem();
+  public final DataSubsystem dataSubsystem = new DataSubsystem(); // teeheehawhaw don't do this kids
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
   // private final Autos autos = new Autos(swerve, elevatorSubsystem);
 
   private double lastVisionTime = 0;
-
-  private final SendableChooser<Command> autoChooser;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -72,14 +69,6 @@ public class RobotContainer {
 
     ledSubsystem.breathe(Color.fromHSV(3, 255, 100), 8);
     // ledSubsystem.setPattern(ledSubsystem.scrollingRainbow);
-
-    // Build an auto chooser. This will use Commands.none() as the default option.
-    autoChooser = AutoBuilder.buildAutoChooser();
-
-    // Another option that allows you to specify the default auto by its name
-    // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
-
-    SmartDashboard.putData("Auto Chooser", autoChooser);
 
     swerve.setDefaultCommand(
         // Drivetrain will execute this command periodically
@@ -125,7 +114,7 @@ public class RobotContainer {
 
     dataSubsystem.setDefaultCommand(dataSubsystem.run(() -> {
       dataSubsystem.setRobotPose(swerve.getState().Pose);
-      // dataSubsystem.setRobotPath(autos.getPath());
+      // dataSubsystem.setRobotPath(autoChooser.getPath());
     }).ignoringDisable(true));
 
     oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> {
@@ -139,8 +128,8 @@ public class RobotContainer {
     swerve.registerTelemetry(logger::telemeterize);
   }
 
-  public Command getAutonomousCommand() {
-    // return autos.getAutonomousCommand();
-    return autoChooser.getSelected();
-  }
+  // public Command getAutonomousCommand() {
+  //   // return autos.getAutonomousCommand();
+  //   return autoChooser.getSelected();
+  // }
 }
