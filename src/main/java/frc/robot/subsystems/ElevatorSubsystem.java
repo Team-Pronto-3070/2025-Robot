@@ -125,6 +125,11 @@ public class ElevatorSubsystem extends SubsystemBase {
         setLevel(Math.max(level - 1, 0));
     }
 
+    public void stop() {
+        leftMotor.stopMotor();
+        rightMotor.stopMotor();
+    }
+
     @Override
     public void periodic() {
         // if (leftMotor.getSupplyCurrent().getValueAsDouble() > 25

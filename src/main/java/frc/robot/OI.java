@@ -22,7 +22,7 @@ public class OI {
         public final DoubleSupplier processed_drive_y;
         public final DoubleSupplier processed_drive_rot;
 
-        public final Trigger gyroReset;
+        public final Trigger interruptButton;
 
         public final Trigger elevatorUp;
         public final Trigger elevatorDown;
@@ -31,7 +31,7 @@ public class OI {
                 driver = new CommandXboxController(Constants.OI.driverPort);
                 operator = new CommandXboxController(Constants.OI.operatorPort);
 
-                gyroReset = driver.x();
+                interruptButton = driver.start();
 
                 drive_x = () -> -driver.getLeftY();
                 drive_y = () -> -driver.getLeftX();

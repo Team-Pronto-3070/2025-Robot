@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DataSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -42,6 +43,7 @@ public class RobotContainer {
 
   private final DataSubsystem dataSubsystem = new DataSubsystem();
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+  private final EndEffector endEffector = new EndEffector();
   private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
   private double MaxSpeed = SwerveConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
@@ -110,33 +112,20 @@ public class RobotContainer {
                                                                                        // negative X (left)
         ));
 
-    oi.gyroReset.onTrue(swerve.runOnce(() -> {
-      // swerve.resetPose(new Pose2d());
-      swerve.tareEverything();
-    }));
+    oi.interruptButton
+        .onTrue(elevatorSubsystem.runOnce(elevatorSubsystem::stop))
+        .onTrue(endEffector.runOnce(endEffector::stop));
 
     frontCamera.setDefaultCommand(frontCamera.run(() -> {
-      // swerve.addVisionMeasurement(cameraSubsystem.getPose().toPose2d(),
-      // cameraSubsystem.getPoseTime());
-
       // Make sure to only set swerve pose if vision data is new
-      double visionTime = frontCamera.getPoseTime();
-      if (visionTime != lastVisionTime) {
-        swerve.addVisionMeasurement(frontCamera.getPose().toPose2d(), visionTime);
-        lastVisionTime = visionTime;
-      }
+      if (frontCamera.hasNewData())
+        swerve.addVisionMeasurement(frontCamera.getPose().toPose2d(), frontCamera.getPoseTime());
     }));
 
     rearCamera.setDefaultCommand(rearCamera.run(() -> {
-      // swerve.addVisionMeasurement(cameraSubsystem.getPose().toPose2d(),
-      // cameraSubsystem.getPoseTime());
-
       // Make sure to only set swerve pose if vision data is new
-      double visionTime = rearCamera.getPoseTime();
-      if (visionTime != lastVisionTime) {
-        swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(), visionTime);
-        lastVisionTime = visionTime;
-      }
+      if (rearCamera.hasNewData())
+        swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(), rearCamera.getPoseTime());
     }));
 
     dataSubsystem.setDefaultCommand(dataSubsystem.run(() -> {

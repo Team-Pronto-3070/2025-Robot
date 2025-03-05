@@ -21,6 +21,7 @@ public class CameraSubsystem extends SubsystemBase {
     private PhotonPoseEstimator photonPoseEstimator;
     private Pose3d estimatedPose = new Pose3d();
     private double poseTime = 0;
+    private boolean changed = false;
 
     public CameraSubsystem(String cameraName, Transform3d cameraPos) {
         // Initialize the camera subsystem here
@@ -77,6 +78,7 @@ public class CameraSubsystem extends SubsystemBase {
                 poseTime = image.getTimestampSeconds();
 
                 estimatedPose = pose;
+                changed = true;
             }
         }
     }
@@ -88,6 +90,15 @@ public class CameraSubsystem extends SubsystemBase {
     // time of last calculated pose in milliseconds
     public double getPoseTime() {
         return poseTime;
+    }
+
+    // returns true if the pose has changed, and resets the flag
+    public boolean hasNewData() {
+        if (changed) {
+            changed = false;
+            return true;
+        }
+        return false;
     }
 
 }
