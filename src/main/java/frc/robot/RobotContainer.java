@@ -79,17 +79,17 @@ public class RobotContainer {
       // Make sure to only set swerve pose if vision data is new
       if (frontCamera.hasNewData())
         swerve.addVisionMeasurement(frontCamera.getPose().toPose2d(), frontCamera.getPoseTime());
-    }));
+    }).ignoringDisable(true));
 
     rearCamera.setDefaultCommand(rearCamera.run(() -> {
       // Make sure to only set swerve pose if vision data is new
       if (rearCamera.hasNewData())
         swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(), rearCamera.getPoseTime());
-    }));
+    }).ignoringDisable(true));
 
     dataSubsystem.setDefaultCommand(dataSubsystem.run(() -> {
       dataSubsystem.setRobotPose(swerve.getState().Pose);
-    }));
+    }).ignoringDisable(true));
 
     oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> {
       elevatorSubsystem.moveUp();

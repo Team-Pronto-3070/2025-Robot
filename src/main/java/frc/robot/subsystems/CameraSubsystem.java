@@ -27,7 +27,7 @@ public class CameraSubsystem extends SubsystemBase {
         // Initialize the camera subsystem here
 
         // The field from AprilTagFields will be different depending on the game.
-        AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+        AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
         // Forward Camera
         camera = new PhotonCamera(cameraName);
