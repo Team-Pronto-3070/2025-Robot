@@ -13,9 +13,13 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+
 import static edu.wpi.first.units.Units.*;
 
 /**
@@ -60,6 +64,13 @@ public class RobotContainer {
 
     ledSubsystem.breathe(Color.fromHSV(3, 255, 100), 8);
     // ledSubsystem.setPattern(ledSubsystem.scrollingRainbow);
+
+    NamedCommands.registerCommand("Raise", new InstantCommand(() -> elevatorSubsystem.setLevel(4)));
+    NamedCommands.registerCommand("Score", Commands.sequence(
+      endEffector.launchCoral(),
+      new InstantCommand(() -> elevatorSubsystem.setLevel(0))
+    ));
+    NamedCommands.registerCommand("Intake", endEffector.intakeCoral());
 
     swerve.setDefaultCommand(
         // Drivetrain will execute this command periodically

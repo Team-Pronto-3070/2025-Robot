@@ -7,6 +7,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -73,23 +74,23 @@ public class EndEffector extends SubsystemBase {
         armConfig.apply(talonFXConfigs);
     }
 
-    public void intakeCoral() {
+    public Command intakeCoral() {
         // spin motor until beam break detects coral has been loaded
-        this.runOnce(() -> coralMotor.set(1)).until(() -> coralBeamBreak.get()).andThen(() -> coralMotor.set(0));
+        return this.runOnce(() -> coralMotor.set(1)).until(() -> coralBeamBreak.get()).andThen(() -> coralMotor.set(0));
     }
 
-    public void launchCoral() {
-        this.runOnce(() -> coralMotor.set(1)).until(() -> !coralBeamBreak.get()).andThen(() -> coralMotor.set(0));
+    public Command launchCoral() {
+        return this.runOnce(() -> coralMotor.set(1)).until(() -> !coralBeamBreak.get()).andThen(() -> coralMotor.set(0));
     }
 
-    public void intakeAlgae() {
-        this.runOnce(() -> algaeMotor.set(-1)).until(() -> {
+    public Command intakeAlgae() {
+        return this.runOnce(() -> algaeMotor.set(-1)).until(() -> {
             return algaeMotor.getStatorCurrent().getValueAsDouble() > 10;
         }).andThen(() -> algaeMotor.set(0));
     }
 
-    public void launchAlgae() {
-        this.runOnce(() -> algaeMotor.set(1)).withTimeout(1).andThen(() -> algaeMotor.set(0));
+    public Command launchAlgae() {
+        return this.runOnce(() -> algaeMotor.set(1)).withTimeout(1).andThen(() -> algaeMotor.set(0));
     }
 
     public void stop() {
