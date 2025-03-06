@@ -48,7 +48,7 @@ public final class Constants {
           new Rotation3d(
               Units.degreesToRadians(0), // forwards
               Units.degreesToRadians(20), // 20 degrees upwards
-              Units.degreesToRadians(0))); // facing backwards
+              Units.degreesToRadians(0))); // facing forwards
     }
 
     public static final class Rear {
@@ -58,10 +58,10 @@ public final class Constants {
           new Translation3d(
               Units.inchesToMeters(-13.5), // 13.5 inches back from center
               Units.inchesToMeters(0), // 0 inches left from center
-              Units.inchesToMeters(5)), // 5 inches up from center
+              Units.inchesToMeters(16)), // 16 inches up from center
           new Rotation3d(
-              Units.degreesToRadians(0), // forwards
-              Units.degreesToRadians(20), // 20 degrees upwards
+              Units.degreesToRadians(1), // 1 degree tilted >:(
+              Units.degreesToRadians(10), // 20 degrees upwards
               Units.degreesToRadians(180))); // facing backwards
     }
   }
