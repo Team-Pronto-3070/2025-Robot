@@ -9,6 +9,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -93,36 +94,40 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     // Move the elevator up by a specified amount (in sensor units)
-    private void goTo(double targetHeight) {
-        final MotionMagicVoltage m_request = new MotionMagicVoltage(0);
+    private Command goTo(double targetHeight) {
+        return run(() -> {
 
-        leftMotor.setControl(m_request.withPosition(
-                Math.min(Math.max(targetHeight, Constants.Elevator.minHeight),
-                        Constants.Elevator.maxHeight)
-                        * Constants.Elevator.inToR));
+            final MotionMagicVoltage m_request = new MotionMagicVoltage(0);
 
-        rightMotor.setControl(m_request.withPosition(
-                Math.min(Math.max(targetHeight, Constants.Elevator.minHeight),
-                        Constants.Elevator.maxHeight)
-                        * -Constants.Elevator.inToR));
+            leftMotor.setControl(m_request.withPosition(
+                    Math.min(Math.max(targetHeight, Constants.Elevator.minHeight),
+                            Constants.Elevator.maxHeight)
+                            * Constants.Elevator.inToR));
+
+            rightMotor.setControl(m_request.withPosition(
+                    Math.min(Math.max(targetHeight, Constants.Elevator.minHeight),
+                            Constants.Elevator.maxHeight)
+                            * -Constants.Elevator.inToR));
+        }).until(() -> Math
+                .abs(leftMotor.getPosition().getValueAsDouble() - (targetHeight * Constants.Elevator.inToR)) < 1);
     }
 
     // Move the elevator up by a specified amount (in sensor units)
-    public void setLevel(int lvl) {
+    public Command setLevel(int lvl) {
         level = lvl;
         double targetHeight = levels[lvl];
 
-        goTo(targetHeight);
+        return goTo(targetHeight);
     }
 
     // Move the elevator up by a specified amount (in sensor units)
-    public void moveUp() {
-        setLevel(Math.min(level + 1, levels.length - 1));
+    public Command moveUp() {
+        return setLevel(Math.min(level + 1, levels.length - 1));
     }
 
     // Move the elevator down to the bottom
-    public void moveDown() {
-        setLevel(Math.max(level - 1, 0));
+    public Command moveDown() {
+        return setLevel(Math.max(level - 1, 0));
     }
 
     public void stop() {

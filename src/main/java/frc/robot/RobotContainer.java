@@ -95,6 +95,8 @@ public class RobotContainer {
       targetPose,
       constraints);
 
+  private final boolean DEBUG_CONTROLS = false;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -103,15 +105,15 @@ public class RobotContainer {
     ledSubsystem.breathe(Color.fromHSV(3, 255, 100), 8);
     // ledSubsystem.setPattern(ledSubsystem.scrollingRainbow);
     // ledSubsystem.setColor(Color.fromHSV(3, 255, 100));
-    
+
     ledSubsystem.setDefaultCommand(ledSubsystem.run(() -> {
       ledSubsystem.setColor(endEffector.hasCoral() ? Color.fromHSV(0, 0, 100) : Color.fromHSV(3, 255, 100));
     }));
 
-    NamedCommands.registerCommand("Raise", new InstantCommand(() -> elevatorSubsystem.setLevel(4)));
+    NamedCommands.registerCommand("Raise", elevatorSubsystem.setLevel(4));
     NamedCommands.registerCommand("Score", Commands.sequence(
         endEffector.launchCoral(),
-        new InstantCommand(() -> elevatorSubsystem.setLevel(0))));
+        elevatorSubsystem.setLevel(0)));
     NamedCommands.registerCommand("Intake", endEffector.intakeCoral());
 
     swerve.setDefaultCommand(
@@ -146,28 +148,27 @@ public class RobotContainer {
       dataSubsystem.setRobotPose(swerve.getState().Pose);
     }).ignoringDisable(true));
 
-    // oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> {
-    //   elevatorSubsystem.setLevel(elevatorLevel);
-    // }));
+    if (DEBUG_CONTROLS) {
+      oi.elevatorUp.onTrue(elevatorSubsystem.setLevel(4));
+      oi.elevatorDown.onTrue(elevatorSubsystem.setLevel(0));
 
-    oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> {
-      elevatorSubsystem.setLevel(4);
-    }));
-    oi.elevatorDown.onTrue(elevatorSubsystem.runOnce(() -> {
-      elevatorSubsystem.setLevel(0);
-    }));
+      oi.intakeButton.onTrue(endEffector.intakeCoral());
+      oi.scoreButton.onTrue(endEffector.launchCoral());
+    } else {
+      oi.elevatorUp.onTrue(elevatorSubsystem.setLevel(elevatorLevel));
 
-    oi.intakeButton.onTrue(Commands.sequence(
-        new InstantCommand(() -> targetPose = coralStationL),
-        // pathfindingCommand,
-        endEffector.intakeCoral()));
-
-    oi.scoreButton.onTrue(
-        Commands.sequence(
-            // new InstantCommand(() -> elevatorSubsystem.setLevel(elevatorLevel)),
-            new InstantCommand(() -> targetPose = stalkPositions[reefStalk]),
-            // pathfindingCommand,
-            endEffector.launchCoral()));
+      oi.intakeButton.onTrue(Commands.sequence(
+          elevatorSubsystem.setLevel(0),
+          new InstantCommand(() -> targetPose = coralStationL),
+          // pathfindingCommand,
+          endEffector.intakeCoral()));
+      oi.scoreButton.onTrue(
+          Commands.sequence(
+              new InstantCommand(() -> elevatorSubsystem.setLevel(elevatorLevel)),
+              new InstantCommand(() -> targetPose = stalkPositions[reefStalk]),
+              // pathfindingCommand,
+              endEffector.launchCoral()));
+    }
 
     Commands.run(() -> {
       int stalk = oi.reefStalk.getAsInt();
