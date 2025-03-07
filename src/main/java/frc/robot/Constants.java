@@ -71,23 +71,23 @@ public final class Constants {
     public static final int rightID = 13;
     public static final double inToR = 1.67; // ~50/29.75
 
-    public static final double minHeight = 0;
-    public static final double maxHeight = 31.5;
+    public static final double minHeight = 0.0;
+    public static final double maxHeight = 30.5;
 
     // Elevator Heights in inches
-    public static final double L0 = 0; // intake
+    public static final double L0 = 0.0; // intake
     public static final double L1 = 12.6; // TODO: calibrate values
     public static final double L2 = 18.9; // TODO: calibrate values
     public static final double L3 = 25.2; // TODO: calibrate values
-    public static final double L4 = 31.5; // elevator max height
+    public static final double L4 = 30.5; // elevator max height
 
   }
 
   public static final class EndEffector {
-    public static final int coralID = 0; // TODO: replace with correct ID
+    public static final int coralID = 15;
     public static final int algaeID = 0; // TODO: replace with correct ID
     public static final int algaeArmID = 0; // TODO: replace with correct ID
-    public static final int beamBreakPort = 0; // TODO: replace with correct port
+    public static final int beamBreakPort = 0;
   }
 
   public static final class Swerve {

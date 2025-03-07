@@ -1,6 +1,7 @@
 package frc.robot;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -23,15 +24,30 @@ public class OI {
         public final DoubleSupplier processed_drive_rot;
 
         public final Trigger interruptButton;
+        public final Trigger gyroResetButton;
 
         public final Trigger elevatorUp;
         public final Trigger elevatorDown;
+        public final Trigger scoreButton;
+        public final Trigger intakeButton;
+
+        public final DoubleSupplier reefX;
+        public final DoubleSupplier reefY;
+
+        public final Trigger nextReef;
+        public final Trigger prevReef;
+
+        public final IntSupplier reefStalk;
+
+        public final Trigger elevatorNext;
+        public final Trigger elevatorPrev;
 
         public OI() {
                 driver = new CommandXboxController(Constants.OI.driverPort);
                 operator = new CommandXboxController(Constants.OI.operatorPort);
 
                 interruptButton = driver.start();
+                gyroResetButton = driver.back();
 
                 drive_x = () -> -driver.getLeftY();
                 drive_y = () -> -driver.getLeftX();
@@ -69,7 +85,31 @@ public class OI {
                                                 : Constants.OI.slowSpeed)
                                 * 0.75;
 
-                elevatorUp = driver.povUp();
-                elevatorDown = driver.povDown();
+                elevatorUp = driver.y();
+                elevatorDown = driver.b();
+                scoreButton = driver.a();
+                intakeButton = driver.x();
+
+                reefX = operator::getLeftX;
+                reefY = operator::getLeftY;
+
+                reefStalk = () -> {
+                        double x = reefX.getAsDouble();
+                        double y = reefY.getAsDouble();
+
+                        if ((x > 0.1 || x < -0.1) && (y > 0.1 || y < -0.1)) {
+                                double angle = Math.atan2(y, x);
+
+                                return (int) Math.round(angle / (Math.PI * 2));
+                        }
+
+                        return 0;
+                };
+
+                nextReef = operator.povLeft().or(operator.x());
+                prevReef = operator.povRight().or(operator.b());
+
+                elevatorNext = operator.povUp().or(operator.y());
+                elevatorPrev = operator.povDown().or(operator.a());
         }
 }
