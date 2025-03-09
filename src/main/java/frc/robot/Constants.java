@@ -45,13 +45,13 @@ public final class Constants {
       public static final String name = "Arducam_Front";
       public static final Transform3d transform = new Transform3d(
           new Translation3d(
-              Units.inchesToMeters(13.5), // 13.5 inches forwards from center
-              Units.inchesToMeters(3), // 3 inches left from center
-              Units.inchesToMeters(6.5)), // 6.5 inches up from center
+              Units.inchesToMeters(13.4), // 13.4 inches forwards from center
+              Units.inchesToMeters(3), // 3 inches Right from center
+              Units.inchesToMeters(7.4)), // 7.4 inches up from center
           new Rotation3d(
-              Units.degreesToRadians(0), // forwards
-              Units.degreesToRadians(20), // 20 degrees upwards
-              Units.degreesToRadians(0))); // facing backwards
+              Units.degreesToRadians(0), // No Roll
+              Units.degreesToRadians(20), // 20 Degrees Upwards
+              Units.degreesToRadians(0))); // Facing Forwards
     }
 
     public static final class Rear {
@@ -60,12 +60,12 @@ public final class Constants {
       public static final Transform3d transform = new Transform3d(
           new Translation3d(
               Units.inchesToMeters(-13.5), // 13.5 inches back from center
-              Units.inchesToMeters(0), // 0 inches left from center
-              Units.inchesToMeters(5)), // 5 inches up from center
+              Units.inchesToMeters(-0.5), // 0.5 inches Left from center 
+              Units.inchesToMeters(16.5)), // 16.5 inches up from center
           new Rotation3d(
-              Units.degreesToRadians(0), // forwards
-              Units.degreesToRadians(20), // 20 degrees upwards
-              Units.degreesToRadians(180))); // facing backwards
+              Units.degreesToRadians(0), // No Roll
+              Units.degreesToRadians(10), // 10 Degrees Upwards
+              Units.degreesToRadians(180))); // Facing Backwards
     }
   }
 
@@ -89,9 +89,9 @@ public final class Constants {
 
   public static final class EndEffector {
     public static final int coralID = 15;
-    public static final int algaeID = 0; // TODO: replace with correct ID
-    public static final int algaeArmID = 0; // TODO: replace with correct ID
-    public static final int beamBreakPort = 0;
+    // public static final int algaeID = 0; // TODO: replace with correct ID
+    // public static final int algaeArmID = 0; // TODO: replace with correct ID
+    public static final int beamBreakPort = 0; // DIO
   }
 
   public static final class Swerve {
