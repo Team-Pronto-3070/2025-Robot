@@ -117,10 +117,22 @@ public class Robot extends TimedRobot {
         try {
           List<PathPlannerPath> pathPlannerPaths = PathPlannerAuto.getPathGroupFromAutoFile(autoName);
           poses.clear();
+          //** Mirror Path on red side **//
+          // for (PathPlannerPath path : pathPlannerPaths) {
+          //   poses.addAll(path.getAllPathPoints().stream().map(
+          //       point -> redAlliance
+          //           ? new Pose2d(Constants.FIELD_HEIGHT - point.position.getX(), point.position.getY(),
+          //               new Rotation2d())
+          //           : new Pose2d(point.position.getX(), point.position.getY(), new Rotation2d()))
+          //       // point -> new Pose2d(point.position.getX(), point.position.getY(), new
+          //       // Rotation2d()))
+          //       .collect(Collectors.toList()));
+          // }
+          //** Rotate Path on red side **//
           for (PathPlannerPath path : pathPlannerPaths) {
             poses.addAll(path.getAllPathPoints().stream().map(
                 point -> redAlliance
-                    ? new Pose2d(Constants.FIELD_HEIGHT - point.position.getX(), point.position.getY(),
+                    ? new Pose2d(Constants.FIELD_HEIGHT - point.position.getX(), Constants.FIELD_WIDTH - point.position.getY(),
                         new Rotation2d())
                     : new Pose2d(point.position.getX(), point.position.getY(), new Rotation2d()))
                 // point -> new Pose2d(point.position.getX(), point.position.getY(), new

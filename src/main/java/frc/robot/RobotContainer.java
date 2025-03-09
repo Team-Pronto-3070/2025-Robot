@@ -124,9 +124,9 @@ public class RobotContainer {
     NamedCommands.registerCommand("Raise", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(4)));
     NamedCommands.registerCommand("Score", Commands.sequence(
         endEffector.launchCoral(),
-        Commands.waitSeconds(0.1),
+        Commands.waitSeconds(0.05),
         elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(0))));
-    NamedCommands.registerCommand("Intake", endEffector.intakeCoral().andThen(Commands.waitSeconds(1.0)));
+    NamedCommands.registerCommand("Intake", endEffector.intakeCoral().andThen(Commands.waitSeconds(0.5)));
 
     swerve.setDefaultCommand(
         // Drivetrain will execute this command periodically
