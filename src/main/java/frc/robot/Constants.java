@@ -26,6 +26,9 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
+  public static final double FIELD_WIDTH = 8.02;
+  public static final double FIELD_HEIGHT = 16.46;
+
   public static final class OI {
     public static final int driverPort = 0;
     public static final int operatorPort = 1;
@@ -72,15 +75,16 @@ public final class Constants {
     public static final double inToR = 1.67; // ~50/29.75
 
     public static final double minHeight = 0.0;
-    public static final double maxHeight = 30.5;
+    public static final double maxHeight = 31.225;
 
     // Elevator Heights in inches
     public static final double L0 = 0.0; // intake
-    public static final double L1 = 12.6; // TODO: calibrate values
-    public static final double L2 = 18.9; // TODO: calibrate values
-    public static final double L3 = 25.2; // TODO: calibrate values
-    public static final double L4 = 30.5; // elevator max height
+    public static final double L1 = 6.9;
+    public static final double L2 = 11.32;
+    public static final double L3 = 18.92;
+    public static final double L4 = 31.225; // elevator max height
 
+    public static final double[] maxSpeeds = {1, 1, 1, 0.7, 0.5};
   }
 
   public static final class EndEffector {

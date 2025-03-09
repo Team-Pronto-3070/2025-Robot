@@ -9,7 +9,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -94,8 +96,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     // Move the elevator up by a specified amount (in sensor units)
-    private Command goTo(double targetHeight) {
-        return run(() -> {
+    private void goTo(double targetHeight) {
+        // Commands.run(() -> {
 
             final MotionMagicVoltage m_request = new MotionMagicVoltage(0);
 
@@ -108,26 +110,30 @@ public class ElevatorSubsystem extends SubsystemBase {
                     Math.min(Math.max(targetHeight, Constants.Elevator.minHeight),
                             Constants.Elevator.maxHeight)
                             * -Constants.Elevator.inToR));
-        }).until(() -> Math
-                .abs(leftMotor.getPosition().getValueAsDouble() - (targetHeight * Constants.Elevator.inToR)) < 1);
+        // }).until(() -> Math
+        //         .abs(leftMotor.getPosition().getValueAsDouble() - (targetHeight * Constants.Elevator.inToR)) < 1);
     }
 
     // Move the elevator up by a specified amount (in sensor units)
-    public Command setLevel(int lvl) {
+    public void setLevel(int lvl) {
         level = lvl;
         double targetHeight = levels[lvl];
 
-        return goTo(targetHeight);
+        goTo(targetHeight);
     }
 
     // Move the elevator up by a specified amount (in sensor units)
-    public Command moveUp() {
-        return setLevel(Math.min(level + 1, levels.length - 1));
+    public void moveUp() {
+        setLevel(Math.min(level + 1, 4));
     }
 
     // Move the elevator down to the bottom
-    public Command moveDown() {
-        return setLevel(Math.max(level - 1, 0));
+    public void moveDown() {
+        setLevel(Math.max(level - 1, 0));
+    }
+
+    public int getLevel() {
+        return level;
     }
 
     public void stop() {
@@ -142,5 +148,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         // leftMotor.setPosition(0);
         // rightMotor.setPosition(0);
         // }
+        SmartDashboard.putNumber("Elevator Height",
+                leftMotor.getPosition().getValueAsDouble() / Constants.Elevator.inToR);
     }
 }

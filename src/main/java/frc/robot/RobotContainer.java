@@ -19,7 +19,10 @@ import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -95,12 +98,20 @@ public class RobotContainer {
       targetPose,
       constraints);
 
-  private final boolean DEBUG_CONTROLS = false;
+  private final boolean DEBUG_CONTROLS = true;
+  private boolean redAlliance = false;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+
+    var optional = DriverStation.getAlliance();
+    if (optional.isPresent()) {
+      if (optional.get() == Alliance.Red) {
+        redAlliance = true;
+      }
+    }
 
     ledSubsystem.breathe(Color.fromHSV(3, 255, 100), 8);
     // ledSubsystem.setPattern(ledSubsystem.scrollingRainbow);
@@ -110,18 +121,22 @@ public class RobotContainer {
       ledSubsystem.setColor(endEffector.hasCoral() ? Color.fromHSV(0, 0, 100) : Color.fromHSV(3, 255, 100));
     }));
 
-    NamedCommands.registerCommand("Raise", elevatorSubsystem.setLevel(4));
+    NamedCommands.registerCommand("Raise", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(4)));
     NamedCommands.registerCommand("Score", Commands.sequence(
         endEffector.launchCoral(),
-        elevatorSubsystem.setLevel(0)));
-    NamedCommands.registerCommand("Intake", endEffector.intakeCoral());
+        Commands.waitSeconds(0.1),
+        elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(0))));
+    NamedCommands.registerCommand("Intake", endEffector.intakeCoral().andThen(Commands.waitSeconds(1.0)));
 
     swerve.setDefaultCommand(
         // Drivetrain will execute this command periodically
-        swerve.applyRequest(() -> drive.withVelocityX(oi.processed_drive_x.getAsDouble() * -MaxSpeed) // Drive forward
-                                                                                                      // with
+        swerve.applyRequest(() -> drive
+            .withVelocityX(oi.processed_drive_x.getAsDouble() * -MaxSpeed
+                * Constants.Elevator.maxSpeeds[elevatorSubsystem.getLevel()]) // Drive forward
+            // with
             // negative Y (forward)
-            .withVelocityY(oi.processed_drive_y.getAsDouble() * -MaxSpeed) // Drive left with negative X (left)
+            .withVelocityY(oi.processed_drive_y.getAsDouble() * -MaxSpeed
+                * Constants.Elevator.maxSpeeds[elevatorSubsystem.getLevel()]) // Drive left with negative X (left)
             .withRotationalRate(oi.processed_drive_rot.getAsDouble() * MaxAngularRate) // Drive counterclockwise with
                                                                                        // negative X (left)
         ));
@@ -149,16 +164,18 @@ public class RobotContainer {
     }).ignoringDisable(true));
 
     if (DEBUG_CONTROLS) {
-      oi.elevatorUp.onTrue(elevatorSubsystem.setLevel(4));
-      oi.elevatorDown.onTrue(elevatorSubsystem.setLevel(0));
+      // oi.elevatorUp.onTrue(elevatorSubsystem.setLevel(4));
+      // oi.elevatorDown.onTrue(elevatorSubsystem.setLevel(0));
+      oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveUp()));
+      oi.elevatorDown.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveDown()));
 
       oi.intakeButton.onTrue(endEffector.intakeCoral());
       oi.scoreButton.onTrue(endEffector.launchCoral());
     } else {
-      oi.elevatorUp.onTrue(elevatorSubsystem.setLevel(elevatorLevel));
+      oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(elevatorLevel)));
 
       oi.intakeButton.onTrue(Commands.sequence(
-          elevatorSubsystem.setLevel(0),
+          elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(0)),
           new InstantCommand(() -> targetPose = coralStationL),
           // pathfindingCommand,
           endEffector.intakeCoral()));

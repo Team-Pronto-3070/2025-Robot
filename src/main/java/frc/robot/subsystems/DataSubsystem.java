@@ -11,12 +11,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DataSubsystem extends SubsystemBase {
 
-    private final PowerDistribution pdh;
+    // private final PowerDistribution pdh;
     private final Field2d field;
 
     public DataSubsystem() {
         // Initialize the data subsystem here
-        pdh = new PowerDistribution();
+        // pdh = new PowerDistribution();
         field = new Field2d();
     }
 
@@ -31,7 +31,7 @@ public class DataSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        SmartDashboard.putNumber("Voltage", pdh.getVoltage());
+        // SmartDashboard.putNumber("Voltage", pdh.getVoltage());
         SmartDashboard.putData("Field", field);
         SmartDashboard.putNumber("Match Timer", Timer.getMatchTime());
     }

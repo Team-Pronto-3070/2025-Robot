@@ -289,9 +289,9 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
                 setOperatorPerspectiveForward(
-                        allianceColor == Alliance.Red
-                                ? kRedAlliancePerspectiveRotation
-                                : kBlueAlliancePerspectiveRotation);
+                        allianceColor == Alliance.Red // inverted for some reason?
+                                ? kBlueAlliancePerspectiveRotation
+                                : kRedAlliancePerspectiveRotation);
                 m_hasAppliedOperatorPerspective = true;
             });
         }

@@ -69,6 +69,7 @@ public class CameraSubsystem extends SubsystemBase {
         if (images.size() > 0) {
             PhotonPipelineResult image = images.get(0);
 
+            photonPoseEstimator.setLastPose(estimatedPose);
             photonPoseEstimator.setReferencePose(estimatedPose);
             Optional<EstimatedRobotPose> optional = photonPoseEstimator.update(image);
 

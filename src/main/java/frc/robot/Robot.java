@@ -4,18 +4,25 @@
 
 package frc.robot;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.deser.impl.FieldProperty;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FlippingUtil.FieldSymmetry;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -40,6 +47,8 @@ public class Robot extends TimedRobot {
   private String autoName, newAutoName;
 
   private List<Pose2d> poses = new ArrayList<Pose2d>();
+
+  private boolean redAlliance = false;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -90,6 +99,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+
+    var optional = DriverStation.getAlliance();
+    if (optional.isPresent()) {
+      if (optional.get() == Alliance.Red) {
+        redAlliance = true;
+      } else {
+        redAlliance = false;
+      }
+    }
+
     newAutoName = autoChooser.getSelected().getName();
     if (autoName != newAutoName) {
       autoName = newAutoName;
@@ -100,7 +119,12 @@ public class Robot extends TimedRobot {
           poses.clear();
           for (PathPlannerPath path : pathPlannerPaths) {
             poses.addAll(path.getAllPathPoints().stream().map(
-                point -> new Pose2d(point.position.getX(), point.position.getY(), new Rotation2d()))
+                point -> redAlliance
+                    ? new Pose2d(Constants.FIELD_HEIGHT - point.position.getX(), point.position.getY(),
+                        new Rotation2d())
+                    : new Pose2d(point.position.getX(), point.position.getY(), new Rotation2d()))
+                // point -> new Pose2d(point.position.getX(), point.position.getY(), new
+                // Rotation2d()))
                 .collect(Collectors.toList()));
           }
           m_robotContainer.dataSubsystem.setRobotPath(poses);
@@ -129,7 +153,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    autoChooser.getSelected().schedule();
+    if (!autoChooser.getSelected().isFinished())
+      autoChooser.getSelected().schedule();
   }
 
   @Override
