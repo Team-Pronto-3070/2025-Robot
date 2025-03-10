@@ -124,9 +124,9 @@ public class RobotContainer {
     NamedCommands.registerCommand("Raise", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(4)));
     NamedCommands.registerCommand("Score", Commands.sequence(
         endEffector.launchCoral(),
-        Commands.waitSeconds(0.05),
+        // Commands.waitSeconds(0.05),
         elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(0))));
-    NamedCommands.registerCommand("Intake", endEffector.intakeCoral().andThen(Commands.waitSeconds(0.5)));
+    NamedCommands.registerCommand("Intake", endEffector.intakeCoral() /* .andThen(Commands.waitSeconds(0.5)) */);
 
     swerve.setDefaultCommand(
         // Drivetrain will execute this command periodically
@@ -169,8 +169,10 @@ public class RobotContainer {
       oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveUp()));
       oi.elevatorDown.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveDown()));
 
-      oi.intakeButton.onTrue(endEffector.intakeCoral());
-      oi.scoreButton.onTrue(endEffector.launchCoral());
+      oi.intakeButton
+          .onTrue(endEffector.intakeCoral().andThen(elevatorSubsystem.run(() -> elevatorSubsystem.setLevel(0))));
+      oi.scoreButton
+          .onTrue(endEffector.launchCoral().andThen(elevatorSubsystem.run(() -> elevatorSubsystem.setLevel(0))));
     } else {
       oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(elevatorLevel)));
 
