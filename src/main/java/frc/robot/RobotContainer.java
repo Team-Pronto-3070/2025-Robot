@@ -19,7 +19,6 @@ import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -105,13 +104,6 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-
-    var optional = DriverStation.getAlliance();
-    if (optional.isPresent()) {
-      if (optional.get() == Alliance.Red) {
-        redAlliance = true;
-      }
-    }
 
     ledSubsystem.breathe(Color.fromHSV(3, 255, 100), 8);
     // ledSubsystem.setPattern(ledSubsystem.scrollingRainbow);

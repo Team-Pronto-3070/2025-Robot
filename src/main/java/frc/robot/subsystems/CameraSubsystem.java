@@ -32,26 +32,6 @@ public class CameraSubsystem extends SubsystemBase {
         // Forward Camera
         camera = new PhotonCamera(cameraName);
 
-        // Transform3d robotToCamF = new Transform3d(
-        // new Translation3d(
-        // Units.inchesToMeters(13.5), // 13.5 inches forwards from center
-        // Units.inchesToMeters(3), // 3 inches left from center
-        // Units.inchesToMeters(6.5)), // 6.5 inches up from center
-        // new Rotation3d(
-        // Units.degreesToRadians(0), // forwards
-        // Units.degreesToRadians(20), // 20 degrees upwards
-        // Units.degreesToRadians(0))); // facing backwards
-
-        // Transform3d robotToCamB = new Transform3d(
-        // new Translation3d(
-        // Units.inchesToMeters(-13.5), // 13.5 inches back from center
-        // Units.inchesToMeters(0), // 0 inches left from center
-        // Units.inchesToMeters(5)), // 5 inches up from center
-        // new Rotation3d(
-        // Units.degreesToRadians(0), // forwards
-        // Units.degreesToRadians(20), // 20 degrees upwards
-        // Units.degreesToRadians(180))); // facing backwards
-
         // Construct PhotonPoseEstimator
         photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
                 PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cameraPos);

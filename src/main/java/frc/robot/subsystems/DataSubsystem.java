@@ -3,7 +3,7 @@ package frc.robot.subsystems;
 import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,7 +16,6 @@ public class DataSubsystem extends SubsystemBase {
 
     public DataSubsystem() {
         // Initialize the data subsystem here
-        // pdh = new PowerDistribution();
         field = new Field2d();
     }
 
@@ -31,7 +30,7 @@ public class DataSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        // SmartDashboard.putNumber("Voltage", pdh.getVoltage());
+        SmartDashboard.putNumber("Voltage", RobotController.getBatteryVoltage());
         SmartDashboard.putData("Field", field);
         SmartDashboard.putNumber("Match Timer", Timer.getMatchTime());
     }
