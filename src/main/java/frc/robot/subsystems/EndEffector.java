@@ -147,6 +147,8 @@ public class EndEffector extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putBoolean("Has Coral", !coralBeamBreak.get());
+
+        coralDelay = SmartDashboard.getNumber("Coral Delay", 0.03);
         SmartDashboard.putNumber("Coral Delay", coralDelay);
     }
 }

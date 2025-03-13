@@ -175,7 +175,11 @@ public class RobotContainer {
     oi.coralDelayDown.onTrue(endEffector.runOnce(() -> endEffector.decreaseCoralDelay()));
 
     oi.visionToggle.onTrue(Commands.runOnce(() -> useVision = !useVision));
-    SmartDashboard.putBoolean("Use Vision", useVision);
+
+    Commands.run(() -> {
+      useVision = SmartDashboard.getBoolean("Use Vision", true);
+      SmartDashboard.putBoolean("Use Vision", useVision);
+    });
 
     Commands.run(() -> {
       boolean redAlliance = false;
