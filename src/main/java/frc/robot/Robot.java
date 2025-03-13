@@ -121,7 +121,7 @@ public class Robot extends TimedRobot {
           // for (PathPlannerPath path : pathPlannerPaths) {
           //   poses.addAll(path.getAllPathPoints().stream().map(
           //       point -> redAlliance
-          //           ? new Pose2d(Constants.FIELD_HEIGHT - point.position.getX(), point.position.getY(),
+          //           ? new Pose2d(Constants.FIELD_WIDTH - point.position.getX(), point.position.getY(),
           //               new Rotation2d())
           //           : new Pose2d(point.position.getX(), point.position.getY(), new Rotation2d()))
           //       // point -> new Pose2d(point.position.getX(), point.position.getY(), new
@@ -132,7 +132,7 @@ public class Robot extends TimedRobot {
           for (PathPlannerPath path : pathPlannerPaths) {
             poses.addAll(path.getAllPathPoints().stream().map(
                 point -> redAlliance
-                    ? new Pose2d(Constants.FIELD_HEIGHT - point.position.getX(), Constants.FIELD_WIDTH - point.position.getY(),
+                    ? new Pose2d(Constants.FIELD_WIDTH - point.position.getX(), Constants.FIELD_HEIGHT - point.position.getY(),
                         new Rotation2d())
                     : new Pose2d(point.position.getX(), point.position.getY(), new Rotation2d()))
                 // point -> new Pose2d(point.position.getX(), point.position.getY(), new

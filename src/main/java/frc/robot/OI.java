@@ -1,7 +1,6 @@
 package frc.robot;
 
 import java.util.function.DoubleSupplier;
-import java.util.function.IntSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -31,22 +30,21 @@ public class OI {
         public final Trigger scoreButton;
         public final Trigger intakeButton;
 
-        public final DoubleSupplier reefX;
-        public final DoubleSupplier reefY;
+        public final Trigger autoAlign;
 
-        public final Trigger nextReef;
-        public final Trigger prevReef;
-
-        public final IntSupplier reefStalk;
-
-        public final Trigger elevatorNext;
-        public final Trigger elevatorPrev;
+        public final Trigger manualIntake;
+        public final Trigger manualOuttake;
+        public final Trigger manualElevatorUp;
+        public final Trigger manualElevatorDown;
+        public final Trigger coralDelayUp;
+        public final Trigger coralDelayDown;
+        public final Trigger visionToggle;
 
         public OI() {
                 driver = new CommandXboxController(Constants.OI.driverPort);
                 operator = new CommandXboxController(Constants.OI.operatorPort);
 
-                interruptButton = driver.start();
+                interruptButton = driver.start().or(operator.start());
                 gyroResetButton = driver.back();
 
                 drive_x = () -> -driver.getLeftY();
@@ -89,27 +87,14 @@ public class OI {
                 elevatorDown = driver.b();
                 scoreButton = driver.a();
                 intakeButton = driver.x();
+                autoAlign = driver.rightBumper();
 
-                reefX = operator::getLeftX;
-                reefY = operator::getLeftY;
-
-                reefStalk = () -> {
-                        double x = reefX.getAsDouble();
-                        double y = reefY.getAsDouble();
-
-                        if ((x > 0.1 || x < -0.1) && (y > 0.1 || y < -0.1)) {
-                                double angle = Math.atan2(y, x);
-
-                                return (int) Math.round(angle / (Math.PI * 2));
-                        }
-
-                        return 0;
-                };
-
-                nextReef = operator.povLeft().or(operator.x());
-                prevReef = operator.povRight().or(operator.b());
-
-                elevatorNext = operator.povUp().or(operator.y());
-                elevatorPrev = operator.povDown().or(operator.a());
+                manualIntake = operator.a();
+                manualOuttake = operator.b();
+                coralDelayDown = operator.x();
+                coralDelayUp = operator.y();
+                manualElevatorUp = operator.povUp();
+                manualElevatorDown = operator.povDown();
+                visionToggle = operator.back();
         }
 }

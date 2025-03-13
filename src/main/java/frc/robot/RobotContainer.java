@@ -19,13 +19,14 @@ import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -64,28 +65,33 @@ public class RobotContainer {
   private final EndEffector endEffector = new EndEffector();
   private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
-  private int reefStalk = 0;
-  private int elevatorLevel = 0;
+  // private int reefStalk = 0;
+  // private int elevatorLevel = 0;
 
-  private final Pose2d coralStationL = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
-  private final Pose2d coralStationR = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
+  // private final Pose2d coralStationL = new Pose2d(0, 0,
+  // Rotation2d.fromDegrees(0));
+  // private final Pose2d coralStationR = new Pose2d(0, 0,
+  // Rotation2d.fromDegrees(0));
 
-  private final Pose2d[] stalkPositions = { // A-L
-      new Pose2d(3.156, 4.197, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  };
+  // private final Pose2d[] stalkPositions = { // A-L
+  // new Pose2d(3.156, 4.197, Rotation2d.fromDegrees(0)),
+  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+  // };
 
   private Pose2d targetPose = new Pose2d(1, 1, Rotation2d.fromDegrees(0));
+
+  private Translation2d blueReef = new Translation2d(4.1, Constants.FIELD_HEIGHT / 2);
+  private Translation2d redReef = new Translation2d(Constants.FIELD_WIDTH - 4.1, Constants.FIELD_HEIGHT / 2);
 
   // Create the constraints to use while pathfinding
   private PathConstraints constraints = new PathConstraints(
@@ -93,12 +99,9 @@ public class RobotContainer {
       Units.degreesToRadians(540), Units.degreesToRadians(720));
 
   // Since AutoBuilder is configured, we can use it to build pathfinding commands
-  private Command pathfindingCommand = AutoBuilder.pathfindToPose(
-      targetPose,
-      constraints);
+  private Command pathfindingCommand;
 
-  private final boolean DEBUG_CONTROLS = true;
-  private boolean redAlliance = false;
+  private boolean useVision = true;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -141,13 +144,13 @@ public class RobotContainer {
 
     frontCamera.setDefaultCommand(frontCamera.run(() -> {
       // Make sure to only set swerve pose if vision data is new
-      if (frontCamera.hasNewData())
+      if (useVision && frontCamera.hasNewData())
         swerve.addVisionMeasurement(frontCamera.getPose().toPose2d(), frontCamera.getPoseTime());
     }).ignoringDisable(true));
 
     rearCamera.setDefaultCommand(rearCamera.run(() -> {
       // Make sure to only set swerve pose if vision data is new
-      if (rearCamera.hasNewData())
+      if (useVision && rearCamera.hasNewData())
         swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(), rearCamera.getPoseTime());
     }).ignoringDisable(true));
 
@@ -155,43 +158,46 @@ public class RobotContainer {
       dataSubsystem.setRobotPose(swerve.getState().Pose);
     }).ignoringDisable(true));
 
-    if (DEBUG_CONTROLS) {
-      // oi.elevatorUp.onTrue(elevatorSubsystem.setLevel(4));
-      // oi.elevatorDown.onTrue(elevatorSubsystem.setLevel(0));
-      oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveUp()));
-      oi.elevatorDown.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveDown()));
+    oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveUp()));
+    oi.elevatorDown.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveDown()));
 
-      oi.intakeButton
-          .onTrue(endEffector.intakeCoral().andThen(elevatorSubsystem.run(() -> elevatorSubsystem.setLevel(0))));
-      oi.scoreButton
-          .onTrue(endEffector.launchCoral().andThen(elevatorSubsystem.run(() -> elevatorSubsystem.setLevel(0))));
-    } else {
-      oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(elevatorLevel)));
+    oi.intakeButton
+        .onTrue(endEffector.intakeCoral().andThen(elevatorSubsystem.run(() -> elevatorSubsystem.setLevel(0))));
+    oi.scoreButton
+        .onTrue(endEffector.launchCoral().andThen(elevatorSubsystem.run(() -> elevatorSubsystem.setLevel(0))));
 
-      oi.intakeButton.onTrue(Commands.sequence(
-          elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(0)),
-          new InstantCommand(() -> targetPose = coralStationL),
-          // pathfindingCommand,
-          endEffector.intakeCoral()));
-      oi.scoreButton.onTrue(
-          Commands.sequence(
-              new InstantCommand(() -> elevatorSubsystem.setLevel(elevatorLevel)),
-              new InstantCommand(() -> targetPose = stalkPositions[reefStalk]),
-              // pathfindingCommand,
-              endEffector.launchCoral()));
-    }
+    oi.manualElevatorUp.onTrue(Commands.runOnce(() -> {}));
+    oi.manualElevatorDown.onTrue(Commands.runOnce(() -> {}));
+    oi.manualIntake.onTrue(Commands.runOnce(() -> {}));
+    oi.manualOuttake.onTrue(Commands.runOnce(() -> {}));
+
+    oi.coralDelayUp.onTrue(endEffector.runOnce(() -> endEffector.increaseCoralDelay()));
+    oi.coralDelayDown.onTrue(endEffector.runOnce(() -> endEffector.decreaseCoralDelay()));
+
+    oi.visionToggle.onTrue(Commands.runOnce(() -> useVision = !useVision));
+    SmartDashboard.putBoolean("Use Vision", useVision);
 
     Commands.run(() -> {
-      int stalk = oi.reefStalk.getAsInt();
-      if (stalk > 0)
-        reefStalk = stalk;
-    });
+      boolean redAlliance = false;
+      if (DriverStation.getAlliance().isPresent()) {
+        redAlliance = (DriverStation.getAlliance().get() == Alliance.Red);
+      }
 
-    oi.nextReef.onTrue(Commands.runOnce(() -> reefStalk = (((reefStalk + 1) - 1) % 12) + 1));
-    oi.nextReef.onTrue(Commands.runOnce(() -> reefStalk = (((reefStalk - 1) - 1) % 12) + 1));
+      Translation2d reef = redAlliance ? redReef : blueReef;
 
-    oi.elevatorNext.onTrue(Commands.runOnce(() -> elevatorLevel = Math.min(elevatorLevel + 1, 4)));
-    oi.elevatorPrev.onTrue(Commands.runOnce(() -> elevatorLevel = Math.max(elevatorLevel - 1, 0)));
+      Pose2d pose = swerve.getState().Pose;
+
+      double angle = Math.atan2(pose.getY() - reef.getY(), pose.getX() - reef.getX());
+
+      angle = angle * angle / angle;
+
+    }, swerve);
+
+    pathfindingCommand = AutoBuilder.pathfindToPose(
+        targetPose,
+        constraints);
+
+    oi.autoAlign.whileTrue(pathfindingCommand);
   }
 
   public Command getAutonomousCommand() {

@@ -29,6 +29,8 @@ public class EndEffector extends SubsystemBase {
     // return !coralBeamBreak.get();
     // };
 
+    private double coralDelay = 0.03;
+
     public EndEffector() {
         coralBeamBreak = new DigitalInput(Constants.EndEffector.beamBreakPort);
 
@@ -93,18 +95,20 @@ public class EndEffector extends SubsystemBase {
 
     public Command intakeCoral() {
         return Commands.sequence(
-            this.runOnce(() -> System.out.println("Intake")),
-            this.runOnce(() -> coralMotor.set(1)),
-            Commands.defer(() -> Commands.waitUntil(new Trigger(() -> !coralBeamBreak.get()).debounce(0.03)), Set.of(this)),
+                this.runOnce(() -> System.out.println("Intake")),
+                this.runOnce(() -> coralMotor.set(1)),
+                Commands.defer(() -> Commands.waitUntil(new Trigger(() -> !coralBeamBreak.get()).debounce(coralDelay)),
+                        Set.of(this)),
                 this.runOnce(() -> coralMotor.set(0)));
     }
 
     public Command launchCoral() {
-            return Commands.sequence(
+        return Commands.sequence(
                 this.runOnce(() -> System.out.println("Launch")),
                 this.runOnce(() -> coralMotor.set(1)),
-                Commands.defer(() -> Commands.waitUntil(new Trigger(() -> coralBeamBreak.get()).debounce(0.2)), Set.of(this)),
-                    this.runOnce(() -> coralMotor.set(0)));
+                Commands.defer(() -> Commands.waitUntil(new Trigger(() -> coralBeamBreak.get()).debounce(0.2)),
+                        Set.of(this)),
+                this.runOnce(() -> coralMotor.set(0)));
     }
 
     // public Command intakeAlgae() {
@@ -126,6 +130,14 @@ public class EndEffector extends SubsystemBase {
         coralMotor.stopMotor();
         // algaeMotor.stopMotor();
         // armMotor.stopMotor();
+    }
+
+    public void increaseCoralDelay() {
+        coralDelay += 0.05;
+    }
+
+    public void decreaseCoralDelay() {
+        coralDelay -= 0.05;
     }
 
     @Override
