@@ -111,6 +111,10 @@ public class EndEffector extends SubsystemBase {
                 this.runOnce(() -> coralMotor.set(0)));
     }
 
+    public void setCoral(double speed) {
+        coralMotor.set(speed);
+    }
+
     // public Command intakeAlgae() {
     // return this.runOnce(() -> algaeMotor.set(-1)).until(() -> {
     // return algaeMotor.getStatorCurrent().getValueAsDouble() > 10;
@@ -143,5 +147,6 @@ public class EndEffector extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putBoolean("Has Coral", !coralBeamBreak.get());
+        SmartDashboard.putNumber("Coral Delay", coralDelay);
     }
 }

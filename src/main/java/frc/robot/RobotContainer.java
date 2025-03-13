@@ -166,10 +166,10 @@ public class RobotContainer {
     oi.scoreButton
         .onTrue(endEffector.launchCoral().andThen(elevatorSubsystem.run(() -> elevatorSubsystem.setLevel(0))));
 
-    oi.manualElevatorUp.onTrue(Commands.runOnce(() -> {}));
-    oi.manualElevatorDown.onTrue(Commands.runOnce(() -> {}));
-    oi.manualIntake.onTrue(Commands.runOnce(() -> {}));
-    oi.manualOuttake.onTrue(Commands.runOnce(() -> {}));
+    oi.manualElevatorUp.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveUp()));
+    oi.manualElevatorDown.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveDown()));
+    oi.manualIntake.onTrue(endEffector.runOnce(() -> {endEffector.setCoral(1);}));
+    oi.manualOuttake.onTrue(endEffector.runOnce(() -> {endEffector.setCoral(-1);}));
 
     oi.coralDelayUp.onTrue(endEffector.runOnce(() -> endEffector.increaseCoralDelay()));
     oi.coralDelayDown.onTrue(endEffector.runOnce(() -> endEffector.decreaseCoralDelay()));
