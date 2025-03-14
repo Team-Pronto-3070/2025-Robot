@@ -17,6 +17,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathConstraints;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -29,6 +30,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 import static edu.wpi.first.units.Units.*;
+
+import java.util.ArrayList;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -73,20 +76,20 @@ public class RobotContainer {
   // private final Pose2d coralStationR = new Pose2d(0, 0,
   // Rotation2d.fromDegrees(0));
 
-  // private final Pose2d[] stalkPositions = { // A-L
-  // new Pose2d(3.156, 4.197, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // };
+  private final Pose2d[] stalkPositions = { // A-L
+      new Pose2d(3.156, 4.197, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+  };
 
   private Pose2d targetPose = new Pose2d(1, 1, Rotation2d.fromDegrees(0));
 
@@ -102,6 +105,11 @@ public class RobotContainer {
   private Command pathfindingCommand;
 
   private boolean useVision = true;
+
+  // slew rate limiters are in units/second e.g 0.5 takes 2 seconds to get to 100%
+  private SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
+  private SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
+  private SlewRateLimiter rLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -126,14 +134,16 @@ public class RobotContainer {
     swerve.setDefaultCommand(
         // Drivetrain will execute this command periodically
         swerve.applyRequest(() -> drive
-            .withVelocityX(oi.processed_drive_x.getAsDouble() * -MaxSpeed
+            .withVelocityX(xLimiter.calculate(oi.processed_drive_x.getAsDouble()) * -MaxSpeed
                 * Constants.Elevator.maxSpeeds[elevatorSubsystem.getLevel()]) // Drive forward
             // with
             // negative Y (forward)
-            .withVelocityY(oi.processed_drive_y.getAsDouble() * -MaxSpeed
+            .withVelocityY(yLimiter.calculate(oi.processed_drive_y.getAsDouble()) * -MaxSpeed
                 * Constants.Elevator.maxSpeeds[elevatorSubsystem.getLevel()]) // Drive left with negative X (left)
-            .withRotationalRate(oi.processed_drive_rot.getAsDouble() * MaxAngularRate) // Drive counterclockwise with
-                                                                                       // negative X (left)
+            .withRotationalRate(rLimiter.calculate(oi.processed_drive_rot.getAsDouble()) * MaxAngularRate) // Drive
+                                                                                                           // counterclockwise
+                                                                                                           // with
+        // negative X (left)
         ));
 
     oi.interruptButton
@@ -158,18 +168,40 @@ public class RobotContainer {
       dataSubsystem.setRobotPose(swerve.getState().Pose);
     }).ignoringDisable(true));
 
-    oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveUp()));
-    oi.elevatorDown.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveDown()));
+    oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> {
+      elevatorSubsystem.moveUp();
+      setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+    }));
+    oi.elevatorDown.onTrue(elevatorSubsystem.runOnce(() -> {
+      elevatorSubsystem.moveDown();
+      setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+    }));
 
     oi.intakeButton
-        .onTrue(endEffector.intakeCoral().andThen(elevatorSubsystem.run(() -> elevatorSubsystem.setLevel(0))));
+        .onTrue(endEffector.intakeCoral().andThen(elevatorSubsystem.run(() -> {
+          elevatorSubsystem.setLevel(0);
+          setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+        })));
     oi.scoreButton
-        .onTrue(endEffector.launchCoral().andThen(elevatorSubsystem.run(() -> elevatorSubsystem.setLevel(0))));
+        .onTrue(endEffector.launchCoral().andThen(elevatorSubsystem.run(() -> {
+          elevatorSubsystem.setLevel(0);
+          setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+        })));
 
-    oi.manualElevatorUp.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveUp()));
-    oi.manualElevatorDown.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveDown()));
-    oi.manualIntake.onTrue(endEffector.runOnce(() -> {endEffector.setCoral(1);}));
-    oi.manualOuttake.onTrue(endEffector.runOnce(() -> {endEffector.setCoral(-1);}));
+    oi.manualElevatorUp.onTrue(elevatorSubsystem.runOnce(() -> {
+      elevatorSubsystem.moveUp();
+      setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+    }));
+    oi.manualElevatorDown.onTrue(elevatorSubsystem.runOnce(() -> {
+      elevatorSubsystem.moveDown();
+      setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+    }));
+    oi.manualIntake.onTrue(endEffector.runOnce(() -> {
+      endEffector.setCoral(1);
+    }));
+    oi.manualOuttake.onTrue(endEffector.runOnce(() -> {
+      endEffector.setCoral(-1);
+    }));
 
     oi.coralDelayUp.onTrue(endEffector.runOnce(() -> endEffector.increaseCoralDelay()));
     oi.coralDelayDown.onTrue(endEffector.runOnce(() -> endEffector.decreaseCoralDelay()));
@@ -197,13 +229,45 @@ public class RobotContainer {
         redAlliance = (DriverStation.getAlliance().get() == Alliance.Red);
       }
 
-      Translation2d reef = redAlliance ? redReef : blueReef;
+      // Translation2d reef = redAlliance ? redReef : blueReef;
 
-      Pose2d pose = swerve.getState().Pose;
+      // Pose2d pose = swerve.getState().Pose;
 
-      double angle = Math.atan2(pose.getY() - reef.getY(), pose.getX() - reef.getX());
+      // double angle = Math.atan2(pose.getY() - reef.getY(), pose.getX() -
+      // reef.getX());
 
-      angle = angle * angle / angle;
+      // angle = angle * angle / angle;
+
+      // find the closest stalk
+      Pose2d closest = null;
+      double closestDistance = Double.MAX_VALUE;
+
+      Pose2d robot = swerve.getState().Pose;
+
+      if (redAlliance)
+        robot = new Pose2d(Constants.FIELD_WIDTH - robot.getX(), robot.getY(), robot.getRotation());
+
+      for (int i = 0; i < stalkPositions.length; i++) {
+        double dx = stalkPositions[i].getX() - robot.getX();
+        double dy = stalkPositions[i].getY() - robot.getY();
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closest = stalkPositions[i];
+        }
+      }
+
+      if (redAlliance)
+        closest = new Pose2d(Constants.FIELD_WIDTH - closest.getX(), closest.getY(), closest.getRotation());
+
+      ArrayList<Pose2d> path = new ArrayList<Pose2d>();
+      path.add(robot);
+      path.add(closest);
+      dataSubsystem.setRobotPath(path);
+
+      pathfindingCommand = AutoBuilder.pathfindToPose(
+          closest,
+          constraints);
 
     }, swerve);
 
@@ -212,6 +276,12 @@ public class RobotContainer {
         constraints);
 
     oi.autoAlign.whileTrue(pathfindingCommand);
+  }
+
+  private void setAcceleration(double acceleration) {
+    xLimiter = new SlewRateLimiter(acceleration);
+    yLimiter = new SlewRateLimiter(acceleration);
+    rLimiter = new SlewRateLimiter(acceleration);
   }
 
   public Command getAutonomousCommand() {
