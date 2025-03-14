@@ -89,8 +89,8 @@ public final class Constants {
 
   public static final class EndEffector {
     public static final int coralID = 15;
-    // public static final int algaeID = 0; // TODO: replace with correct ID
-    // public static final int algaeArmID = 0; // TODO: replace with correct ID
+    public static final int algaeID = 0; // TODO: replace with correct ID
+    public static final int algaeArmID = 0; // TODO: replace with correct ID
     public static final int beamBreakPort = 0; // DIO
   }
 

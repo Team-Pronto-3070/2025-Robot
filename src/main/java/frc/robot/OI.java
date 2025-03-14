@@ -40,6 +40,11 @@ public class OI {
         public final Trigger coralDelayDown;
         public final Trigger visionToggle;
 
+        public final Trigger povUp;
+        public final Trigger povDown;
+        public final Trigger povLeft;
+        public final Trigger povRight;
+
         public OI() {
                 driver = new CommandXboxController(Constants.OI.driverPort);
                 operator = new CommandXboxController(Constants.OI.operatorPort);
@@ -96,5 +101,10 @@ public class OI {
                 manualElevatorUp = operator.povUp();
                 manualElevatorDown = operator.povDown();
                 visionToggle = operator.back();
+
+                povUp = driver.povUp();
+                povDown = driver.povDown();
+                povLeft = driver.povLeft();
+                povRight = driver.povRight();
         }
 }

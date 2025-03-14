@@ -176,6 +176,16 @@ public class RobotContainer {
 
     oi.visionToggle.onTrue(Commands.runOnce(() -> useVision = !useVision));
 
+    oi.povUp.onTrue(endEffector.runOnce(() -> endEffector.setArm(0.1)));
+    oi.povUp.onFalse(endEffector.runOnce(() -> endEffector.setArm(0.0)));
+    oi.povDown.onTrue(endEffector.runOnce(() -> endEffector.setArm(-0.1)));
+    oi.povDown.onFalse(endEffector.runOnce(() -> endEffector.setArm(0.0)));
+
+    oi.povLeft.onTrue(endEffector.runOnce(() -> endEffector.setAlgae(0.1)));
+    oi.povLeft.onFalse(endEffector.runOnce(() -> endEffector.setAlgae(0.0)));
+    oi.povRight.onTrue(endEffector.runOnce(() -> endEffector.setAlgae(-0.1)));
+    oi.povRight.onFalse(endEffector.runOnce(() -> endEffector.setAlgae(0.0)));
+
     Commands.run(() -> {
       useVision = SmartDashboard.getBoolean("Use Vision", true);
       SmartDashboard.putBoolean("Use Vision", useVision);
