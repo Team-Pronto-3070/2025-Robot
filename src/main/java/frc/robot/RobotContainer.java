@@ -17,6 +17,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathConstraints;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -103,6 +104,11 @@ public class RobotContainer {
 
   private boolean useVision = true;
 
+  // slew rate limiters are in units/second e.g 0.5 takes 2 seconds to get to 100%
+  private SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
+  private SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
+  private SlewRateLimiter rLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -126,14 +132,16 @@ public class RobotContainer {
     swerve.setDefaultCommand(
         // Drivetrain will execute this command periodically
         swerve.applyRequest(() -> drive
-            .withVelocityX(oi.processed_drive_x.getAsDouble() * -MaxSpeed
+            .withVelocityX(xLimiter.calculate(oi.processed_drive_x.getAsDouble()) * -MaxSpeed
                 * Constants.Elevator.maxSpeeds[elevatorSubsystem.getLevel()]) // Drive forward
             // with
             // negative Y (forward)
-            .withVelocityY(oi.processed_drive_y.getAsDouble() * -MaxSpeed
+            .withVelocityY(yLimiter.calculate(oi.processed_drive_y.getAsDouble()) * -MaxSpeed
                 * Constants.Elevator.maxSpeeds[elevatorSubsystem.getLevel()]) // Drive left with negative X (left)
-            .withRotationalRate(oi.processed_drive_rot.getAsDouble() * MaxAngularRate) // Drive counterclockwise with
-                                                                                       // negative X (left)
+            .withRotationalRate(rLimiter.calculate(oi.processed_drive_rot.getAsDouble()) * MaxAngularRate) // Drive
+                                                                                                           // counterclockwise
+                                                                                                           // with
+        // negative X (left)
         ));
 
     oi.interruptButton
@@ -158,18 +166,40 @@ public class RobotContainer {
       dataSubsystem.setRobotPose(swerve.getState().Pose);
     }).ignoringDisable(true));
 
-    oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveUp()));
-    oi.elevatorDown.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveDown()));
+    oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> {
+      elevatorSubsystem.moveUp();
+      setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+    }));
+    oi.elevatorDown.onTrue(elevatorSubsystem.runOnce(() -> {
+      elevatorSubsystem.moveDown();
+      setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+    }));
 
     oi.intakeButton
-        .onTrue(endEffector.intakeCoral().andThen(elevatorSubsystem.run(() -> elevatorSubsystem.setLevel(0))));
+        .onTrue(endEffector.intakeCoral().andThen(elevatorSubsystem.run(() -> {
+          elevatorSubsystem.setLevel(0);
+          setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+        })));
     oi.scoreButton
-        .onTrue(endEffector.launchCoral().andThen(elevatorSubsystem.run(() -> elevatorSubsystem.setLevel(0))));
+        .onTrue(endEffector.launchCoral().andThen(elevatorSubsystem.run(() -> {
+          elevatorSubsystem.setLevel(0);
+          setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+        })));
 
-    oi.manualElevatorUp.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveUp()));
-    oi.manualElevatorDown.onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.moveDown()));
-    oi.manualIntake.onTrue(endEffector.runOnce(() -> {endEffector.setCoral(1);}));
-    oi.manualOuttake.onTrue(endEffector.runOnce(() -> {endEffector.setCoral(-1);}));
+    oi.manualElevatorUp.onTrue(elevatorSubsystem.runOnce(() -> {
+      elevatorSubsystem.moveUp();
+      setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+    }));
+    oi.manualElevatorDown.onTrue(elevatorSubsystem.runOnce(() -> {
+      elevatorSubsystem.moveDown();
+      setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+    }));
+    oi.manualIntake.onTrue(endEffector.runOnce(() -> {
+      endEffector.setCoral(1);
+    }));
+    oi.manualOuttake.onTrue(endEffector.runOnce(() -> {
+      endEffector.setCoral(-1);
+    }));
 
     oi.coralDelayUp.onTrue(endEffector.runOnce(() -> endEffector.increaseCoralDelay()));
     oi.coralDelayDown.onTrue(endEffector.runOnce(() -> endEffector.decreaseCoralDelay()));
@@ -202,6 +232,12 @@ public class RobotContainer {
         constraints);
 
     oi.autoAlign.whileTrue(pathfindingCommand);
+  }
+
+  private void setAcceleration(double acceleration) {
+    xLimiter = new SlewRateLimiter(acceleration);
+    yLimiter = new SlewRateLimiter(acceleration);
+    rLimiter = new SlewRateLimiter(acceleration);
   }
 
   public Command getAutonomousCommand() {
