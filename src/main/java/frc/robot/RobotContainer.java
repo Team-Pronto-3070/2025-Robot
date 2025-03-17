@@ -31,6 +31,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.ArrayList;
+
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
@@ -74,20 +76,20 @@ public class RobotContainer {
   // private final Pose2d coralStationR = new Pose2d(0, 0,
   // Rotation2d.fromDegrees(0));
 
-  // private final Pose2d[] stalkPositions = { // A-L
-  // new Pose2d(3.156, 4.197, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-  // };
+  private final Pose2d[] stalkPositions = { // A-L
+      new Pose2d(3.156, 4.197, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+  };
 
   private Pose2d targetPose = new Pose2d(1, 1, Rotation2d.fromDegrees(0));
 
@@ -217,13 +219,45 @@ public class RobotContainer {
         redAlliance = (DriverStation.getAlliance().get() == Alliance.Red);
       }
 
-      Translation2d reef = redAlliance ? redReef : blueReef;
+      // Translation2d reef = redAlliance ? redReef : blueReef;
 
-      Pose2d pose = swerve.getState().Pose;
+      // Pose2d pose = swerve.getState().Pose;
 
-      double angle = Math.atan2(pose.getY() - reef.getY(), pose.getX() - reef.getX());
+      // double angle = Math.atan2(pose.getY() - reef.getY(), pose.getX() -
+      // reef.getX());
 
-      angle = angle * angle / angle;
+      // angle = angle * angle / angle;
+
+      // find the closest stalk
+      Pose2d closest = null;
+      double closestDistance = Double.MAX_VALUE;
+
+      Pose2d robot = swerve.getState().Pose;
+
+      if (redAlliance)
+        robot = new Pose2d(Constants.FIELD_WIDTH - robot.getX(), robot.getY(), robot.getRotation());
+
+      for (int i = 0; i < stalkPositions.length; i++) {
+        double dx = stalkPositions[i].getX() - robot.getX();
+        double dy = stalkPositions[i].getY() - robot.getY();
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closest = stalkPositions[i];
+        }
+      }
+
+      if (redAlliance)
+        closest = new Pose2d(Constants.FIELD_WIDTH - closest.getX(), closest.getY(), closest.getRotation());
+
+      ArrayList<Pose2d> path = new ArrayList<Pose2d>();
+      path.add(robot);
+      path.add(closest);
+      dataSubsystem.setRobotPath(path);
+
+      pathfindingCommand = AutoBuilder.pathfindToPose(
+          closest,
+          constraints);
 
     }, swerve);
 
