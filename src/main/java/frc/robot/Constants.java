@@ -27,7 +27,7 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
 
   public static final double FIELD_HEIGHT = 8.02;
-  public static final double FIELD_WIDTH = 16.46;
+  public static final double FIELD_WIDTH = 17.56;
 
   public static final class OI {
     public static final int driverPort = 0;
@@ -60,7 +60,7 @@ public final class Constants {
       public static final Transform3d transform = new Transform3d(
           new Translation3d(
               Units.inchesToMeters(-13.5), // 13.5 inches back from center
-              Units.inchesToMeters(-0.5), // 0.5 inches Left from center 
+              Units.inchesToMeters(-0.2), // 0.5 inches Left from center 
               Units.inchesToMeters(16.5)), // 16.5 inches up from center
           new Rotation3d(
               Units.degreesToRadians(0), // No Roll
@@ -75,23 +75,23 @@ public final class Constants {
     public static final double inToR = 1.67; // ~50/29.75
 
     public static final double minHeight = 0.0;
-    public static final double maxHeight = 31.225;
+    public static final double maxHeight = 31.310;
 
     // Elevator Heights in inches
     public static final double L0 = 0.0; // intake
     public static final double L1 = 6.9;
     public static final double L2 = 11.32;
     public static final double L3 = 18.92;
-    public static final double L4 = 31.225; // elevator max height
+    public static final double L4 = 31.5; // elevator max height
 
     public static final double[] maxSpeeds = {1, 1, 1, 0.7, 0.5};
-    public static final double[] acceleration = {3, 3, 2, 1, 0.5};
+    public static final double[] acceleration = {10, 10, 8, 5, 3};
   }
 
   public static final class EndEffector {
     public static final int coralID = 15;
-    public static final int algaeID = 0; // TODO: replace with correct ID
-    public static final int algaeArmID = 0; // TODO: replace with correct ID
+    // public static final int algaeID = 17; // TODO: replace with correct ID
+    // public static final int algaeArmID = 16; // TODO: replace with correct ID
     public static final int beamBreakPort = 0; // DIO
   }
 

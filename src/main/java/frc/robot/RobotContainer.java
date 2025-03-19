@@ -15,7 +15,10 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -32,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import static edu.wpi.first.units.Units.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -77,24 +81,28 @@ public class RobotContainer {
   // Rotation2d.fromDegrees(0));
 
   private final Pose2d[] stalkPositions = { // A-L
-      new Pose2d(3.156, 4.197, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+      // new Pose2d(3.63, 4.04, Rotation2d.fromDegrees(0)),
+      // new Pose2d(3.47, 3.73, Rotation2d.fromDegrees(0)),
+      new Pose2d(3.50, 4.05, Rotation2d.fromDegrees(0)),
+      new Pose2d(3.50, 3.80, Rotation2d.fromDegrees(0)),
+      new Pose2d(3.96, 3.14, Rotation2d.fromDegrees(60)),
+      new Pose2d(4.36, 3.05, Rotation2d.fromDegrees(60)),
+      new Pose2d(5.54, 3.46, Rotation2d.fromDegrees(120)),
+      new Pose2d(4.90, 3.56, Rotation2d.fromDegrees(120)),
+      new Pose2d(5.51, 3.93, Rotation2d.fromDegrees(180)),
+      new Pose2d(5.29, 4.34, Rotation2d.fromDegrees(180)),
+      new Pose2d(5.01, 4.83, Rotation2d.fromDegrees(-120)),
+      new Pose2d(4.75, 4.68, Rotation2d.fromDegrees(-120)),
+      new Pose2d(3.96, 4.93, Rotation2d.fromDegrees(-60)),
+      new Pose2d(3.70, 4.73, Rotation2d.fromDegrees(-60)),
   };
 
-  private Pose2d targetPose = new Pose2d(1, 1, Rotation2d.fromDegrees(0));
+  private Pose2d targetPose = new Pose2d(1.5, 1.5, Rotation2d.fromDegrees(45));
 
-  private Translation2d blueReef = new Translation2d(4.1, Constants.FIELD_HEIGHT / 2);
-  private Translation2d redReef = new Translation2d(Constants.FIELD_WIDTH - 4.1, Constants.FIELD_HEIGHT / 2);
+  // private Translation2d blueReef = new Translation2d(4.1,
+  // Constants.FIELD_HEIGHT / 2);
+  // private Translation2d redReef = new Translation2d(Constants.FIELD_WIDTH -
+  // 4.1, Constants.FIELD_HEIGHT / 2);
 
   // Create the constraints to use while pathfinding
   private PathConstraints constraints = new PathConstraints(
@@ -110,6 +118,8 @@ public class RobotContainer {
   private SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
   private SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
   private SlewRateLimiter rLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
+
+  private PathPlannerPath path;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -134,15 +144,21 @@ public class RobotContainer {
     swerve.setDefaultCommand(
         // Drivetrain will execute this command periodically
         swerve.applyRequest(() -> drive
-            .withVelocityX(xLimiter.calculate(oi.processed_drive_x.getAsDouble()) * -MaxSpeed
+            // .withVelocityX(xLimiter.calculate(oi.processed_drive_x.getAsDouble()) *
+            // -MaxSpeed
+            .withVelocityX(oi.processed_drive_x.getAsDouble() * -MaxSpeed
                 * Constants.Elevator.maxSpeeds[elevatorSubsystem.getLevel()]) // Drive forward
             // with
             // negative Y (forward)
-            .withVelocityY(yLimiter.calculate(oi.processed_drive_y.getAsDouble()) * -MaxSpeed
+            // .withVelocityY(yLimiter.calculate(oi.processed_drive_y.getAsDouble()) *
+            // -MaxSpeed
+            .withVelocityY(oi.processed_drive_y.getAsDouble() * -MaxSpeed
                 * Constants.Elevator.maxSpeeds[elevatorSubsystem.getLevel()]) // Drive left with negative X (left)
-            .withRotationalRate(rLimiter.calculate(oi.processed_drive_rot.getAsDouble()) * MaxAngularRate) // Drive
-                                                                                                           // counterclockwise
-                                                                                                           // with
+            // .withRotationalRate(rLimiter.calculate(oi.processed_drive_rot.getAsDouble())
+            // * MaxAngularRate) // Drive
+            .withRotationalRate(oi.processed_drive_rot.getAsDouble() * MaxAngularRate) // Drive
+        // counterclockwise
+        // with
         // negative X (left)
         ));
 
@@ -170,31 +186,31 @@ public class RobotContainer {
 
     oi.elevatorUp.onTrue(elevatorSubsystem.runOnce(() -> {
       elevatorSubsystem.moveUp();
-      setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+      // setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
     }));
     oi.elevatorDown.onTrue(elevatorSubsystem.runOnce(() -> {
       elevatorSubsystem.moveDown();
-      setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+      // setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
     }));
 
     oi.intakeButton
-        .onTrue(endEffector.intakeCoral().andThen(elevatorSubsystem.run(() -> {
+        .onTrue(endEffector.intakeCoral().alongWith(elevatorSubsystem.run(() -> {
           elevatorSubsystem.setLevel(0);
-          setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+          // setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
         })));
     oi.scoreButton
         .onTrue(endEffector.launchCoral().andThen(elevatorSubsystem.run(() -> {
           elevatorSubsystem.setLevel(0);
-          setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+          // setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
         })));
 
     oi.manualElevatorUp.onTrue(elevatorSubsystem.runOnce(() -> {
       elevatorSubsystem.moveUp();
-      setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+      // setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
     }));
     oi.manualElevatorDown.onTrue(elevatorSubsystem.runOnce(() -> {
       elevatorSubsystem.moveDown();
-      setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
+      // setAcceleration(Constants.Elevator.acceleration[elevatorSubsystem.getLevel()]);
     }));
     oi.manualIntake.onTrue(endEffector.runOnce(() -> {
       endEffector.setCoral(1);
@@ -208,80 +224,112 @@ public class RobotContainer {
 
     oi.visionToggle.onTrue(Commands.runOnce(() -> useVision = !useVision));
 
-    oi.povUp.onTrue(endEffector.runOnce(() -> endEffector.setArm(0.1)));
-    oi.povUp.onFalse(endEffector.runOnce(() -> endEffector.setArm(0.0)));
-    oi.povDown.onTrue(endEffector.runOnce(() -> endEffector.setArm(-0.1)));
-    oi.povDown.onFalse(endEffector.runOnce(() -> endEffector.setArm(0.0)));
+    // oi.povUp.onTrue(endEffector.runOnce(() -> endEffector.setArm(0.1)));
+    // oi.povUp.onFalse(endEffector.runOnce(() -> endEffector.setArm(0.0)));
+    // oi.povDown.onTrue(endEffector.runOnce(() -> endEffector.setArm(-0.1)));
+    // oi.povDown.onFalse(endEffector.runOnce(() -> endEffector.setArm(0.0)));
 
-    oi.povLeft.onTrue(endEffector.runOnce(() -> endEffector.setAlgae(0.1)));
-    oi.povLeft.onFalse(endEffector.runOnce(() -> endEffector.setAlgae(0.0)));
-    oi.povRight.onTrue(endEffector.runOnce(() -> endEffector.setAlgae(-0.1)));
-    oi.povRight.onFalse(endEffector.runOnce(() -> endEffector.setAlgae(0.0)));
+    // oi.povLeft.onTrue(endEffector.runOnce(() -> endEffector.setAlgae(0.1)));
+    // oi.povLeft.onFalse(endEffector.runOnce(() -> endEffector.setAlgae(0.0)));
+    // oi.povRight.onTrue(endEffector.runOnce(() -> endEffector.setAlgae(-0.1)));
+    // oi.povRight.onFalse(endEffector.runOnce(() -> endEffector.setAlgae(0.0)));
 
-    Commands.run(() -> {
-      useVision = SmartDashboard.getBoolean("Use Vision", true);
-      SmartDashboard.putBoolean("Use Vision", useVision);
-    });
+    // pathfindingCommand = AutoBuilder.pathfindToPose(
+    // targetPose,
+    // constraints);
 
-    Commands.run(() -> {
-      boolean redAlliance = false;
-      if (DriverStation.getAlliance().isPresent()) {
-        redAlliance = (DriverStation.getAlliance().get() == Alliance.Red);
-      }
-
-      // Translation2d reef = redAlliance ? redReef : blueReef;
-
-      // Pose2d pose = swerve.getState().Pose;
-
-      // double angle = Math.atan2(pose.getY() - reef.getY(), pose.getX() -
-      // reef.getX());
-
-      // angle = angle * angle / angle;
-
-      // find the closest stalk
-      Pose2d closest = null;
-      double closestDistance = Double.MAX_VALUE;
-
-      Pose2d robot = swerve.getState().Pose;
-
-      if (redAlliance)
-        robot = new Pose2d(Constants.FIELD_WIDTH - robot.getX(), robot.getY(), robot.getRotation());
-
-      for (int i = 0; i < stalkPositions.length; i++) {
-        double dx = stalkPositions[i].getX() - robot.getX();
-        double dy = stalkPositions[i].getY() - robot.getY();
-        double distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closest = stalkPositions[i];
-        }
-      }
-
-      if (redAlliance)
-        closest = new Pose2d(Constants.FIELD_WIDTH - closest.getX(), closest.getY(), closest.getRotation());
-
-      ArrayList<Pose2d> path = new ArrayList<Pose2d>();
-      path.add(robot);
-      path.add(closest);
-      dataSubsystem.setRobotPath(path);
-
-      pathfindingCommand = AutoBuilder.pathfindToPose(
-          closest,
-          constraints);
-
-    }, swerve);
-
-    pathfindingCommand = AutoBuilder.pathfindToPose(
-        targetPose,
-        constraints);
-
-    oi.autoAlign.whileTrue(pathfindingCommand);
+    // path = new PathPlannerPath(null, constraints, null, null);
   }
 
-  private void setAcceleration(double acceleration) {
-    xLimiter = new SlewRateLimiter(acceleration);
-    yLimiter = new SlewRateLimiter(acceleration);
-    rLimiter = new SlewRateLimiter(acceleration);
+  // private void setAcceleration(double acceleration) {
+  // xLimiter = new SlewRateLimiter(acceleration);
+  // yLimiter = new SlewRateLimiter(acceleration);
+  // rLimiter = new SlewRateLimiter(acceleration);
+  // }
+
+  public void periodic() {
+    SmartDashboard.putNumber("Pose X", swerve.getState().Pose.getX());
+    SmartDashboard.putNumber("Pose Y", swerve.getState().Pose.getY());
+    SmartDashboard.putNumber("Pose R", swerve.getState().Pose.getRotation().getDegrees());
+
+    useVision = SmartDashboard.getBoolean("Use Vision", true);
+    SmartDashboard.putBoolean("Use Vision", useVision);
+
+    // System.out.println("Posey");
+
+    if (oi.autoAlign.getAsBoolean()) {
+      pathfindingCommand.schedule();
+      return;
+    }
+
+    boolean redAlliance = false;
+    if (DriverStation.getAlliance().isPresent()) {
+      redAlliance = (DriverStation.getAlliance().get() == Alliance.Red);
+    }
+
+    // Translation2d reef = redAlliance ? redReef : blueReef;
+
+    // // Pose2d pose = swerve.getState().Pose;
+
+    // // double angle = Math.atan2(pose.getY() - reef.getY(), pose.getX() -
+    // // reef.getX());
+
+    // // angle = angle * angle / angle;
+
+    // find the closest stalk
+    Pose2d closest = null;
+    double closestDistance = Double.MAX_VALUE;
+
+    Pose2d robot = swerve.getState().Pose;
+
+    if (redAlliance)
+      robot = new Pose2d(Constants.FIELD_WIDTH - robot.getX(), robot.getY(),
+          robot.getRotation());
+
+    for (int i = 0; i < stalkPositions.length; i++) {
+      double dx = stalkPositions[i].getX() - robot.getX();
+      double dy = stalkPositions[i].getY() - robot.getY();
+      double distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closest = stalkPositions[i];
+      }
+    }
+
+    if (redAlliance)
+      closest = new Pose2d(Constants.FIELD_WIDTH - closest.getX(), closest.getY(),
+          closest.getRotation());
+
+    ArrayList<Pose2d> show = new ArrayList<Pose2d>();
+
+    show.add(closest);
+    dataSubsystem.setRobotPath(show);
+
+    // pathfindingCommand = AutoBuilder.pathfindToPose(
+    // closest,
+    // constraints);
+
+    // Create a list of waypoints from poses. Each pose represents one waypoint.
+    // The rotation component of the pose should be the direction of travel. Do not
+    // use holonomic rotation.
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(robot, closest);
+
+    // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); //
+    // You can also use unlimited constraints, only limited by motor torque and
+    // nominal battery voltage
+
+    // Create the path using the waypoints created above
+    path = new PathPlannerPath(
+        waypoints,
+        constraints,
+        null, // The ideal starting state, this is only relevant for pre-planned paths, so can
+              // be null for on-the-fly paths.
+        new GoalEndState(0.0, closest.getRotation()) // Goal end state. You can set a holonomic rotation here. If
+                                                     // using a differential drivetrain, the rotation will have no
+                                                     // effect.
+    );
+
+    pathfindingCommand = AutoBuilder.followPath(path);
   }
 
   public Command getAutonomousCommand() {

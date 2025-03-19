@@ -19,45 +19,45 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class EndEffector extends SubsystemBase {
 
     private final TalonFX coralMotor;
-    private final TalonFX algaeMotor;
-    private final TalonFX armMotor;
+    // private final TalonFX algaeMotor;
+    // private final TalonFX armMotor;
 
     private final DigitalInput coralBeamBreak;
 
-    private double coralDelay = 0.03;
+    private double coralDelay = 0.005;
 
     public EndEffector() {
         coralBeamBreak = new DigitalInput(Constants.EndEffector.beamBreakPort);
 
         coralMotor = new TalonFX(Constants.EndEffector.coralID);
-        algaeMotor = new TalonFX(Constants.EndEffector.algaeID);
-        armMotor = new TalonFX(Constants.EndEffector.algaeArmID);
+        // algaeMotor = new TalonFX(Constants.EndEffector.algaeID);
+        // armMotor = new TalonFX(Constants.EndEffector.algaeArmID);
 
         var coralConfig = coralMotor.getConfigurator();
-        var algaeConfig = algaeMotor.getConfigurator();
-        var armConfig = armMotor.getConfigurator();
+        // var algaeConfig = algaeMotor.getConfigurator();
+        // var armConfig = armMotor.getConfigurator();
 
         var coralConfigs = new MotorOutputConfigs();
         coralConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
         coralConfigs.NeutralMode = NeutralModeValue.Brake;
         coralConfig.apply(coralConfigs);
 
-        var algaeConfigs = new MotorOutputConfigs();
-        algaeConfigs.Inverted = InvertedValue.Clockwise_Positive;
-        algaeConfigs.NeutralMode = NeutralModeValue.Brake;
-        algaeConfig.apply(algaeConfigs);
+        // var algaeConfigs = new MotorOutputConfigs();
+        // algaeConfigs.Inverted = InvertedValue.Clockwise_Positive;
+        // algaeConfigs.NeutralMode = NeutralModeValue.Brake;
+        // algaeConfig.apply(algaeConfigs);
 
-        var armConfigs = new MotorOutputConfigs();
-        armConfigs.Inverted = InvertedValue.Clockwise_Positive;
-        armConfigs.NeutralMode = NeutralModeValue.Brake;
-        armConfig.apply(armConfigs);
+        // var armConfigs = new MotorOutputConfigs();
+        // armConfigs.Inverted = InvertedValue.Clockwise_Positive;
+        // armConfigs.NeutralMode = NeutralModeValue.Brake;
+        // armConfig.apply(armConfigs);
 
         var currentLimitsConfig = new CurrentLimitsConfigs();
         currentLimitsConfig.SupplyCurrentLimitEnable = true;
-        currentLimitsConfig.SupplyCurrentLimit = 10;
+        currentLimitsConfig.SupplyCurrentLimit = 40;
         coralConfig.apply(currentLimitsConfig);
-        algaeConfig.apply(currentLimitsConfig);
-        armConfig.apply(currentLimitsConfig);
+        // algaeConfig.apply(currentLimitsConfig);
+        // armConfig.apply(currentLimitsConfig);
 
         // // in init function
         // var talonFXConfigs = new TalonFXConfiguration();
@@ -121,13 +121,13 @@ public class EndEffector extends SubsystemBase {
     // algaeMotor.set(0));
     // }
 
-    public void setAlgae(double speed) {
-        algaeMotor.set(speed);
-    }
+    // public void setAlgae(double speed) {
+    //     algaeMotor.set(speed);
+    // }
 
-    public void setArm(double speed) {
-        armMotor.set(speed);
-    }
+    // public void setArm(double speed) {
+    //     armMotor.set(speed);
+    // }
 
     public Boolean hasCoral() {
         return !coralBeamBreak.get();
@@ -135,8 +135,8 @@ public class EndEffector extends SubsystemBase {
 
     public void stop() {
         coralMotor.stopMotor();
-        algaeMotor.stopMotor();
-        armMotor.stopMotor();
+        // algaeMotor.stopMotor();
+        // armMotor.stopMotor();
     }
 
     public void increaseCoralDelay() {
@@ -151,7 +151,7 @@ public class EndEffector extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putBoolean("Has Coral", !coralBeamBreak.get());
 
-        coralDelay = SmartDashboard.getNumber("Coral Delay", 0.03);
+        coralDelay = SmartDashboard.getNumber("Coral Delay", 0.005);
         SmartDashboard.putNumber("Coral Delay", coralDelay);
     }
 }

@@ -40,6 +40,7 @@ public class Robot extends TimedRobot {
   private List<Pose2d> poses = new ArrayList<Pose2d>();
 
   private boolean redAlliance = false;
+  private boolean lastAlliance = false;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -101,29 +102,31 @@ public class Robot extends TimedRobot {
     }
 
     newAutoName = autoChooser.getSelected().getName();
-    if (autoName != newAutoName) {
+    if (autoName != newAutoName || lastAlliance != redAlliance) {
       autoName = newAutoName;
       if (AutoBuilder.getAllAutoNames().contains(autoName)) {
         // System.out.println("Displaying " + autoName);
         try {
           List<PathPlannerPath> pathPlannerPaths = PathPlannerAuto.getPathGroupFromAutoFile(autoName);
           poses.clear();
-          //** Mirror Path on red side **//
+          // ** Mirror Path on red side **//
           // for (PathPlannerPath path : pathPlannerPaths) {
-          //   poses.addAll(path.getAllPathPoints().stream().map(
-          //       point -> redAlliance
-          //           ? new Pose2d(Constants.FIELD_WIDTH - point.position.getX(), point.position.getY(),
-          //               new Rotation2d())
-          //           : new Pose2d(point.position.getX(), point.position.getY(), new Rotation2d()))
-          //       // point -> new Pose2d(point.position.getX(), point.position.getY(), new
-          //       // Rotation2d()))
-          //       .collect(Collectors.toList()));
+          // poses.addAll(path.getAllPathPoints().stream().map(
+          // point -> redAlliance
+          // ? new Pose2d(Constants.FIELD_WIDTH - point.position.getX(),
+          // point.position.getY(),
+          // new Rotation2d())
+          // : new Pose2d(point.position.getX(), point.position.getY(), new Rotation2d()))
+          // // point -> new Pose2d(point.position.getX(), point.position.getY(), new
+          // // Rotation2d()))
+          // .collect(Collectors.toList()));
           // }
-          //** Rotate Path on red side **//
+          // ** Rotate Path on red side **//
           for (PathPlannerPath path : pathPlannerPaths) {
             poses.addAll(path.getAllPathPoints().stream().map(
                 point -> redAlliance
-                    ? new Pose2d(Constants.FIELD_WIDTH - point.position.getX(), Constants.FIELD_HEIGHT - point.position.getY(),
+                    ? new Pose2d(Constants.FIELD_WIDTH - point.position.getX(),
+                        Constants.FIELD_HEIGHT - point.position.getY(),
                         new Rotation2d())
                     : new Pose2d(point.position.getX(), point.position.getY(), new Rotation2d()))
                 // point -> new Pose2d(point.position.getX(), point.position.getY(), new
@@ -137,6 +140,8 @@ public class Robot extends TimedRobot {
         }
       }
     }
+
+    lastAlliance = redAlliance;
   }
 
   /**
@@ -177,6 +182,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    m_robotContainer.periodic();
   }
 
   @Override
