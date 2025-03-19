@@ -26,8 +26,8 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
-  public static final double FIELD_HEIGHT = 8.02;
-  public static final double FIELD_WIDTH = 17.56;
+  public static final double FIELD_HEIGHT = 8.052;
+  public static final double FIELD_WIDTH = 17.548;
 
   public static final class OI {
     public static final int driverPort = 0;
