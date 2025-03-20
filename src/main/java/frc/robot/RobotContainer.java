@@ -26,6 +26,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -108,17 +109,26 @@ public class RobotContainer {
       3.0, 4.0,
       Units.degreesToRadians(540), Units.degreesToRadians(720));
 
+  // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0);
+  // You can also use unlimited constraints, only limited by motor torque and
+  // nominal battery voltage
+
   // Since AutoBuilder is configured, we can use it to build pathfinding commands
   private Command pathfindingCommand;
 
   private boolean useVision = true;
 
   // slew rate limiters are in units/second e.g 0.5 takes 2 seconds to get to 100%
-  // private SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
-  // private SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
-  // private SlewRateLimiter rLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
+  // private SlewRateLimiter xLimiter = new
+  // SlewRateLimiter(Constants.Elevator.acceleration[0]);
+  // private SlewRateLimiter yLimiter = new
+  // SlewRateLimiter(Constants.Elevator.acceleration[0]);
+  // private SlewRateLimiter rLimiter = new
+  // SlewRateLimiter(Constants.Elevator.acceleration[0]);
 
   private PathPlannerPath path;
+
+  private boolean hasCoral = false;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -139,7 +149,17 @@ public class RobotContainer {
     // ledSubsystem.setColor(Color.fromHSV(3, 255, 100));
 
     ledSubsystem.setDefaultCommand(ledSubsystem.run(() -> {
-      ledSubsystem.setColor(endEffector.hasCoral() ? Color.fromHSV(0, 0, 100) : Color.fromHSV(3, 255, 100));
+      Color color = Color.fromHSV(6 / 2, 255, 100);
+
+      if (endEffector.hasCoral()) {
+        color = Color.fromHSV(0 / 2, 0, 100);
+      }
+
+      if (oi.autoAlign.getAsBoolean()) {
+        color = Color.fromHSV(200 / 2, 255, 100);
+      }
+
+      ledSubsystem.setColor(color);
     }));
 
     NamedCommands.registerCommand("Raise", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(4)));
@@ -169,6 +189,12 @@ public class RobotContainer {
         // with
         // negative X (left)
         ));
+
+    endEffector.setDefaultCommand(endEffector.runOnce(() -> {
+      if (endEffector.hasCoral() && !hasCoral) {
+        oi.driveRumble(RumbleType.kBothRumble, 1);
+      }
+    }));
 
     oi.interruptButton
         .onTrue(elevatorSubsystem.runOnce(elevatorSubsystem::stop))
@@ -248,7 +274,7 @@ public class RobotContainer {
 
     // path = new PathPlannerPath(null, constraints, null, null);
 
-    oi.autoAlign.onTrue(Commands.runOnce(() -> {
+    oi.autoAlign.whileTrue(Commands.runOnce(() -> {
       pathfindingCommand.schedule();
     }));
   }
@@ -324,10 +350,6 @@ public class RobotContainer {
     // The rotation component of the pose should be the direction of travel. Do not
     // use holonomic rotation.
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(robot, closest);
-
-    // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); //
-    // You can also use unlimited constraints, only limited by motor torque and
-    // nominal battery voltage
 
     // Create the path using the waypoints created above
     path = new PathPlannerPath(

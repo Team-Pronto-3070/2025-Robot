@@ -3,6 +3,7 @@ package frc.robot;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -106,5 +107,10 @@ public class OI {
                 povDown = driver.povDown();
                 povLeft = driver.povLeft();
                 povRight = driver.povRight();
+
+        }
+
+        void driveRumble(RumbleType type, double value) {
+                driver.setRumble(type, value);
         }
 }
