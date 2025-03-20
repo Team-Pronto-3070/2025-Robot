@@ -20,10 +20,9 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
+// import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -97,7 +96,7 @@ public class RobotContainer {
       new Pose2d(3.70, 4.73, Rotation2d.fromDegrees(-60)),
   };
 
-  private Pose2d targetPose = new Pose2d(1.5, 1.5, Rotation2d.fromDegrees(45));
+  // private Pose2d targetPose = new Pose2d(1.5, 1.5, Rotation2d.fromDegrees(45));
 
   // private Translation2d blueReef = new Translation2d(4.1,
   // Constants.FIELD_HEIGHT / 2);
@@ -115,9 +114,9 @@ public class RobotContainer {
   private boolean useVision = true;
 
   // slew rate limiters are in units/second e.g 0.5 takes 2 seconds to get to 100%
-  private SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
-  private SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
-  private SlewRateLimiter rLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
+  // private SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
+  // private SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
+  // private SlewRateLimiter rLimiter = new SlewRateLimiter(Constants.Elevator.acceleration[0]);
 
   private PathPlannerPath path;
 
@@ -125,6 +124,15 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    try {
+      var positions = PathPlannerPath.fromPathFile("Reef");
+
+      for (int i = 0; i < stalkPositions.length; i++) {
+        stalkPositions[i] = positions.getPathPoses().get(i);
+      }
+    } catch (Exception e) {
+      System.out.println("Failed to load reef positions");
+    }
 
     ledSubsystem.breathe(Color.fromHSV(3, 255, 100), 8);
     // ledSubsystem.setPattern(ledSubsystem.scrollingRainbow);
@@ -239,6 +247,10 @@ public class RobotContainer {
     // constraints);
 
     // path = new PathPlannerPath(null, constraints, null, null);
+
+    oi.autoAlign.onTrue(Commands.runOnce(() -> {
+      pathfindingCommand.schedule();
+    }));
   }
 
   // private void setAcceleration(double acceleration) {
@@ -258,7 +270,6 @@ public class RobotContainer {
     // System.out.println("Posey");
 
     if (oi.autoAlign.getAsBoolean()) {
-      pathfindingCommand.schedule();
       return;
     }
 

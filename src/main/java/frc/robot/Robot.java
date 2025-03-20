@@ -135,7 +135,6 @@ public class Robot extends TimedRobot {
           }
           m_robotContainer.dataSubsystem.setRobotPath(poses);
         } catch (Exception e) {
-          // TODO: handle exception
           System.out.println("Auto Display Exception ): " + e);
         }
       }
