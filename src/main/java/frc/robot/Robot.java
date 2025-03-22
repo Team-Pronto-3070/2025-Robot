@@ -155,13 +155,13 @@ public class Robot extends TimedRobot {
     // if (m_autonomousCommand != null) {
     // m_autonomousCommand.schedule();
     // }
+    autoChooser.getSelected().schedule();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    if (!autoChooser.getSelected().isFinished())
-      autoChooser.getSelected().schedule();
+      // autoChooser.getSelected().schedule();
   }
 
   @Override

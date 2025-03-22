@@ -156,7 +156,7 @@ public class RobotContainer {
       }
 
       if (oi.autoAlign.getAsBoolean()) {
-        color = Color.fromHSV(200 / 2, 255, 100);
+        color = Color.fromHSV(100 / 2, 255, 100);
       }
 
       ledSubsystem.setColor(color);
@@ -192,7 +192,11 @@ public class RobotContainer {
 
     endEffector.setDefaultCommand(endEffector.runOnce(() -> {
       if (endEffector.hasCoral() && !hasCoral) {
-        oi.driveRumble(RumbleType.kBothRumble, 1);
+        endEffector.runOnce(() -> {
+          oi.driveRumble(RumbleType.kBothRumble, 1);
+        }).andThen(Commands.waitSeconds(1)).andThen(endEffector.runOnce(() -> {
+          oi.driveRumble(RumbleType.kBothRumble, 0);
+        }));
       }
     }));
 
@@ -263,6 +267,9 @@ public class RobotContainer {
     // oi.povDown.onTrue(endEffector.runOnce(() -> endEffector.setArm(-0.1)));
     // oi.povDown.onFalse(endEffector.runOnce(() -> endEffector.setArm(0.0)));
 
+    oi.povUp.onTrue(endEffector.runOnce(() -> endEffector.armUp()));
+    oi.povDown.onTrue(endEffector.runOnce(() -> endEffector.armDown()));
+
     // oi.povLeft.onTrue(endEffector.runOnce(() -> endEffector.setAlgae(0.1)));
     // oi.povLeft.onFalse(endEffector.runOnce(() -> endEffector.setAlgae(0.0)));
     // oi.povRight.onTrue(endEffector.runOnce(() -> endEffector.setAlgae(-0.1)));
@@ -274,9 +281,14 @@ public class RobotContainer {
 
     // path = new PathPlannerPath(null, constraints, null, null);
 
-    oi.autoAlign.whileTrue(Commands.runOnce(() -> {
-      pathfindingCommand.schedule();
+    oi.autoAlign.onTrue(Commands.runOnce(() -> {
+      // pathfindingCommand.schedule();
+      pathfindingCommand.until(oi.autoAlign.negate()).schedule();
     }));
+
+    // oi.autoAlign.onFalse(Commands.runOnce(() -> {
+    // pathfindingCommand.cancel();
+    // }));
   }
 
   // private void setAcceleration(double acceleration) {
