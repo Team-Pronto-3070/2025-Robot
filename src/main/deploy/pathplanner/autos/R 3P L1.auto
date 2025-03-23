@@ -7,13 +7,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Raise"
+            "name": "L1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "R to D"
+            "pathName": "R Start to D"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Raise"
+            "name": "L1"
           }
         },
         {
@@ -67,7 +67,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Raise"
+            "name": "L1"
           }
         },
         {

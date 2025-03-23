@@ -155,13 +155,19 @@ public class Robot extends TimedRobot {
     // if (m_autonomousCommand != null) {
     // m_autonomousCommand.schedule();
     // }
-    autoChooser.getSelected().schedule();
+
+    m_robotContainer.endEffector.calibrateArm();
+
+    if (autoChooser.getSelected() != null) {
+      autoChooser.getSelected().schedule();
+    }
+    
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-      // autoChooser.getSelected().schedule();
+    // autoChooser.getSelected().schedule();
   }
 
   @Override
@@ -170,12 +176,17 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    // if (m_autonomousCommand != null) {
+    // m_autonomousCommand.cancel();
+    // }
+    if (autoChooser.getSelected() != null) {
+      autoChooser.getSelected().cancel();
     }
 
     poses.clear();
     m_robotContainer.dataSubsystem.setRobotPath(poses);
+
+    m_robotContainer.endEffector.calibrateArm();
   }
 
   /** This function is called periodically during operator control. */

@@ -20,6 +20,9 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 // import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -69,7 +72,7 @@ public class RobotContainer {
 
   public final DataSubsystem dataSubsystem = new DataSubsystem();
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-  private final EndEffector endEffector = new EndEffector();
+  public final EndEffector endEffector = new EndEffector();
   private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
   // private int reefStalk = 0;
@@ -96,6 +99,10 @@ public class RobotContainer {
       new Pose2d(3.96, 4.93, Rotation2d.fromDegrees(-60)),
       new Pose2d(3.70, 4.73, Rotation2d.fromDegrees(-60)),
   };
+
+  private final int[] blueTags = { 18, 17, 22, 21, 20, 19 };
+
+  private final int[] redTags = { 7, 8, 9, 10, 11, 6 };
 
   // private Pose2d targetPose = new Pose2d(1.5, 1.5, Rotation2d.fromDegrees(45));
 
@@ -138,7 +145,10 @@ public class RobotContainer {
       var positions = PathPlannerPath.fromPathFile("Reef");
 
       for (int i = 0; i < stalkPositions.length; i++) {
-        stalkPositions[i] = positions.getPathPoses().get(i);
+        stalkPositions[i] = new Pose2d(positions.getWaypoints().get(i).anchor().getX(),
+            positions.getWaypoints().get(i).anchor().getY(), stalkPositions[i].getRotation());
+        System.out.println("added position: (X: " + stalkPositions[i].getX() + ", Y: " + stalkPositions[i].getY()
+            + ", R: " + stalkPositions[i].getRotation().getDegrees() + ")");
       }
     } catch (Exception e) {
       System.out.println("Failed to load reef positions");
@@ -162,12 +172,16 @@ public class RobotContainer {
       ledSubsystem.setColor(color);
     }));
 
-    NamedCommands.registerCommand("Raise", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(4)));
+    NamedCommands.registerCommand("L1", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(1)));
+    NamedCommands.registerCommand("L2", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(2)));
+    NamedCommands.registerCommand("L3", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(3)));
+    NamedCommands.registerCommand("L4", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(4)));
+
     NamedCommands.registerCommand("Score", Commands.sequence(
         endEffector.launchCoral(),
-        // Commands.waitSeconds(0.05),
         elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(0))));
-    NamedCommands.registerCommand("Intake", endEffector.intakeCoral() /* .andThen(Commands.waitSeconds(0.5)) */);
+
+    NamedCommands.registerCommand("Intake", endEffector.intakeCoral());
 
     swerve.setDefaultCommand(
         // Drivetrain will execute this command periodically
@@ -214,8 +228,9 @@ public class RobotContainer {
 
     rearCamera.setDefaultCommand(rearCamera.run(() -> {
       // Make sure to only set swerve pose if vision data is new
-      if (useVision && rearCamera.hasNewData())
-        swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(), rearCamera.getPoseTime());
+      // if (useVision && rearCamera.hasNewData())
+      // swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(),
+      // rearCamera.getPoseTime());
     }).ignoringDisable(true));
 
     dataSubsystem.setDefaultCommand(dataSubsystem.run(() -> {
@@ -275,27 +290,12 @@ public class RobotContainer {
     // oi.povRight.onTrue(endEffector.runOnce(() -> endEffector.setAlgae(-0.1)));
     // oi.povRight.onFalse(endEffector.runOnce(() -> endEffector.setAlgae(0.0)));
 
-    // pathfindingCommand = AutoBuilder.pathfindToPose(
-    // targetPose,
-    // constraints);
-
-    // path = new PathPlannerPath(null, constraints, null, null);
-
     oi.autoAlign.onTrue(Commands.runOnce(() -> {
-      // pathfindingCommand.schedule();
       pathfindingCommand.until(oi.autoAlign.negate()).schedule();
     }));
 
-    // oi.autoAlign.onFalse(Commands.runOnce(() -> {
-    // pathfindingCommand.cancel();
-    // }));
+    // Commands.run(() -> {}).schedule();
   }
-
-  // private void setAcceleration(double acceleration) {
-  // xLimiter = new SlewRateLimiter(acceleration);
-  // yLimiter = new SlewRateLimiter(acceleration);
-  // rLimiter = new SlewRateLimiter(acceleration);
-  // }
 
   public void periodic() {
     SmartDashboard.putNumber("Pose X", swerve.getState().Pose.getX());
@@ -311,25 +311,52 @@ public class RobotContainer {
       return;
     }
 
+    // int[] tagNums = blueTags;
+
     boolean redAlliance = false;
     if (DriverStation.getAlliance().isPresent()) {
       redAlliance = (DriverStation.getAlliance().get() == Alliance.Red);
+      // tagNums = redTags;
     }
 
-    // Translation2d reef = redAlliance ? redReef : blueReef;
-
-    // // Pose2d pose = swerve.getState().Pose;
-
-    // // double angle = Math.atan2(pose.getY() - reef.getY(), pose.getX() -
-    // // reef.getX());
-
-    // // angle = angle * angle / angle;
+    // List<AprilTag> tags =
+    // AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded).getTags();
 
     // find the closest stalk
     Pose2d closest = null;
     double closestDistance = Double.MAX_VALUE;
 
     Pose2d robot = swerve.getState().Pose;
+
+    // for (int i = 0; i < tagNums.length; i++) {
+    // Pose2d tag = tags.get(tagNums[i]).pose.toPose2d();
+
+    // double dist = 0.3;
+    // Pose2d left = tag.transformBy(new
+    // Transform2d(Math.cos(tag.getRotation().getRadians()) * dist,
+    // Math.sin(tag.getRotation().getRadians()) * dist, new Rotation2d(0)));
+    // Pose2d right = tag.transformBy(new
+    // Transform2d(Math.cos(tag.getRotation().getRadians()) * -dist,
+    // Math.sin(tag.getRotation().getRadians()) * -dist, new Rotation2d(0)));
+
+    // double ldx = left.getX() - robot.getX();
+    // double ldy = left.getY() - robot.getY();
+    // double ldistance = Math.sqrt(ldx * ldx + ldy * ldy);
+
+    // if (ldistance < closestDistance) {
+    // closestDistance = ldistance;
+    // closest = left;
+    // }
+
+    // double rdx = right.getX() - robot.getX();
+    // double rdy = right.getY() - robot.getY();
+    // double rdistance = Math.sqrt(rdx * rdx + rdy * rdy);
+
+    // if (rdistance < closestDistance) {
+    // closestDistance = rdistance;
+    // closest = right;
+    // }
+    // }
 
     if (redAlliance)
       robot = new Pose2d(Constants.FIELD_WIDTH - robot.getX(), robot.getY(),

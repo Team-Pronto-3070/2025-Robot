@@ -86,13 +86,13 @@ public class EndEffector extends SubsystemBase {
 
         armConfig.apply(talonFXConfigs);
 
-        armMotor.setPosition(0);
+        // armMotor.setPosition(0);
     }
 
     public Command intakeCoral() {
         return Commands.sequence(
                 this.runOnce(() -> System.out.println("Intake")),
-                this.runOnce(() -> coralMotor.set(1)),
+                this.runOnce(() -> coralMotor.set(0.4)),
                 Commands.defer(() -> Commands.waitUntil(new Trigger(() -> !coralBeamBreak.get()).debounce(coralDelay)),
                         Set.of(this)),
                 this.runOnce(() -> coralMotor.set(0)));
@@ -101,7 +101,7 @@ public class EndEffector extends SubsystemBase {
     public Command launchCoral() {
         return Commands.sequence(
                 this.runOnce(() -> System.out.println("Launch")),
-                this.runOnce(() -> coralMotor.set(1)),
+                this.runOnce(() -> coralMotor.set(0.4)),
                 Commands.defer(() -> Commands.waitUntil(new Trigger(() -> coralBeamBreak.get()).debounce(0.2)),
                         Set.of(this)),
                 this.runOnce(() -> coralMotor.set(0)));
@@ -125,20 +125,31 @@ public class EndEffector extends SubsystemBase {
     // algaeMotor.set(speed);
     // }
 
-    public void setArm(double speed) {
-        armMotor.set(speed);
-    }
-
     public void armUp() {
         // armUp = true;
-        var request = new MotionMagicVoltage(0.0);
+        var request = new MotionMagicVoltage(-0.1);
         armMotor.setControl(request);
+
+        // this.run(() -> armMotor.set(0.1));
+        // armMotor.set(0.1);
+        // this.runEnd(() -> armMotor.set(0.1), () -> armMotor.set(0)).until(() ->
+        // armMotor.getSupplyCurrent().getValueAsDouble() > 4.5).schedule();
     }
 
     public void armDown() {
         // armUp = true;
-        var request = new MotionMagicVoltage(-0.3);
+        var request = new MotionMagicVoltage(-0.52);
         armMotor.setControl(request);
+
+        // this.run(() -> armMotor.set(-0.1));
+        // armMotor.set(-0.1);
+        // this.runEnd(() -> armMotor.set(-0.1), () -> armMotor.set(0)).until(() ->
+        // armMotor.getSupplyCurrent().getValueAsDouble() > 4.5).schedule();
+    }
+
+    public void calibrateArm() {
+        this.runEnd(() -> armMotor.set( 0.1), () -> {armMotor.set(0); armMotor.setPosition(0);})
+                .until(() -> armMotor.getSupplyCurrent().getValueAsDouble() > 4.0).withTimeout(1).schedule();
     }
 
     public Boolean hasCoral() {

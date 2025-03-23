@@ -82,7 +82,7 @@ public final class Constants {
     public static final double L1 = 6.9;
     public static final double L2 = 11.32;
     public static final double L3 = 18.92;
-    public static final double L4 = 31.5; // elevator max height
+    public static final double L4 = 31.0; // elevator max height
 
     public static final double[] maxSpeeds = {1, 1, 1, 0.7, 0.5};
     public static final double[] acceleration = {10, 10, 8, 5, 3};

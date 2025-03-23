@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -95,7 +96,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // Move the elevator up by a specified amount (in sensor units)
     private void goTo(double targetHeight) {
-        // Commands.run(() -> {
+        // this.runOnce(() -> {
 
             final MotionMagicVoltage m_request = new MotionMagicVoltage(0);
 
@@ -109,7 +110,21 @@ public class ElevatorSubsystem extends SubsystemBase {
                             Constants.Elevator.maxHeight)
                             * -Constants.Elevator.inToR));
         // }).until(() -> Math
-        //         .abs(leftMotor.getPosition().getValueAsDouble() - (targetHeight * Constants.Elevator.inToR)) < 1);
+        //         .abs(leftMotor.getPosition().getValueAsDouble() - (targetHeight *
+        //                 Constants.Elevator.inToR)) < 1)
+        //         .andThen(() -> {
+
+        //             if (targetHeight == 0) {
+        //                 this.runOnce(() -> {
+        //                     leftMotor.set(-0.1);
+        //                 }).until(() -> leftMotor.getSupplyCurrent().getValueAsDouble() > 10).withTimeout(0.5)
+        //                         .andThen(() -> {
+        //                             leftMotor.set(0);
+        //                             leftMotor.setPosition(0);
+        //                             rightMotor.setPosition(0);
+        //                         }).schedule();
+        //             }
+        //         });
     }
 
     // Move the elevator up by a specified amount (in sensor units)
