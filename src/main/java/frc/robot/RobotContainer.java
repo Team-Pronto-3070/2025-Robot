@@ -374,7 +374,7 @@ public class RobotContainer {
 
     if (redAlliance)
       closest = new Pose2d(Constants.FIELD_WIDTH - closest.getX(), closest.getY(),
-          closest.getRotation());
+          new Rotation2d(closest.getRotation().getRadians()));
 
     ArrayList<Pose2d> show = new ArrayList<Pose2d>();
 
@@ -400,6 +400,8 @@ public class RobotContainer {
                                                      // using a differential drivetrain, the rotation will have no
                                                      // effect.
     );
+
+    path.preventFlipping = true;
 
     pathfindingCommand = AutoBuilder.followPath(path);
   }
