@@ -50,7 +50,8 @@ public class CameraSubsystem extends SubsystemBase {
             PhotonPipelineResult image = images.get(0);
 
             photonPoseEstimator.setLastPose(estimatedPose);
-            photonPoseEstimator.setReferencePose(estimatedPose);
+            // photonPoseEstimator.setReferencePose(estimatedPose);
+
             Optional<EstimatedRobotPose> optional = photonPoseEstimator.update(image);
 
             if (optional.isPresent()) {
@@ -62,6 +63,10 @@ public class CameraSubsystem extends SubsystemBase {
                 changed = true;
             }
         }
+    }
+
+    public void setReferencePose(Pose3d pose) {
+        photonPoseEstimator.setReferencePose(pose);
     }
 
     public Pose3d getPose() {

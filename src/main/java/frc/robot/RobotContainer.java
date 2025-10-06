@@ -11,6 +11,7 @@ import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -25,6 +26,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 // import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -223,13 +225,16 @@ public class RobotContainer {
       // Make sure to only set swerve pose if vision data is new
       if (useVision && frontCamera.hasNewData())
         swerve.addVisionMeasurement(frontCamera.getPose().toPose2d(), frontCamera.getPoseTime());
-    }).ignoringDisable(true));
 
+      frontCamera.setReferencePose(new Pose3d(swerve.samplePoseAt(Utils.getCurrentTimeSeconds()).get()));
+    }).ignoringDisable(true));
+    
     rearCamera.setDefaultCommand(rearCamera.run(() -> {
       // Make sure to only set swerve pose if vision data is new
-      // if (useVision && rearCamera.hasNewData())
-      //   swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(),
-      //       rearCamera.getPoseTime());
+      if (useVision && rearCamera.hasNewData())
+        swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(),
+            rearCamera.getPoseTime());
+      rearCamera.setReferencePose(new Pose3d(swerve.samplePoseAt(Utils.getCurrentTimeSeconds()).get()));
     }).ignoringDisable(true));
 
     dataSubsystem.setDefaultCommand(dataSubsystem.run(() -> {
