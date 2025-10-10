@@ -36,11 +36,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static edu.wpi.first.units.Units.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -176,7 +178,13 @@ public class RobotContainer {
     NamedCommands.registerCommand("L1", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(1)));
     NamedCommands.registerCommand("L2", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(2)));
     NamedCommands.registerCommand("L3", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(3)));
-    NamedCommands.registerCommand("L4", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(4)));
+    // NamedCommands.registerCommand("L4", elevatorSubsystem.runOnce(() ->
+    // elevatorSubsystem.setLevel(4)).andThen(Commands.waitSeconds(2).until(new
+    // Trigger(() -> elevatorSubsystem.getLevel() == 4))));
+    NamedCommands.registerCommand("L4",
+        elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(4)).andThen(Commands.waitSeconds(1)));
+    // NamedCommands.registerCommand("L4", elevatorSubsystem.runOnce(() ->
+    // elevatorSubsystem.setLevel(4)));
 
     NamedCommands.registerCommand("Score", Commands.sequence(
         endEffector.launchCoral(),
@@ -222,20 +230,25 @@ public class RobotContainer {
     oi.gyroResetButton.onTrue(swerve.runOnce(swerve::tareEverything));
 
     frontCamera.setDefaultCommand(frontCamera.run(() -> {
+      Optional<Pose2d> pose = swerve.samplePoseAt(Utils.getCurrentTimeSeconds());
+
+      if (pose.isPresent())
+        frontCamera.setReferencePose(new Pose3d(pose.get()));
+
       // Make sure to only set swerve pose if vision data is new
       if (useVision && frontCamera.hasNewData())
         swerve.addVisionMeasurement(frontCamera.getPose().toPose2d(), frontCamera.getPoseTime());
 
-      frontCamera.setReferencePose(new Pose3d(swerve.samplePoseAt(Utils.getCurrentTimeSeconds()).get()));
     }).ignoringDisable(true));
-    
-    rearCamera.setDefaultCommand(rearCamera.run(() -> {
-      // Make sure to only set swerve pose if vision data is new
-      if (useVision && rearCamera.hasNewData())
-        swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(),
-            rearCamera.getPoseTime());
-      rearCamera.setReferencePose(new Pose3d(swerve.samplePoseAt(Utils.getCurrentTimeSeconds()).get()));
-    }).ignoringDisable(true));
+
+    // rearCamera.setDefaultCommand(rearCamera.run(() -> {
+    // // Make sure to only set swerve pose if vision data is new
+    // if (useVision && rearCamera.hasNewData())
+    // swerve.addVisionMeasurement(rearCamera.getPose().toPose2d(),
+    // rearCamera.getPoseTime());
+    // rearCamera.setReferencePose(new
+    // Pose3d(swerve.samplePoseAt(Utils.getCurrentTimeSeconds()).get()));
+    // }).ignoringDisable(true));
 
     dataSubsystem.setDefaultCommand(dataSubsystem.run(() -> {
       dataSubsystem.setRobotPose(swerve.getState().Pose);

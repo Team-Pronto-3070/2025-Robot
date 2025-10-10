@@ -52,15 +52,24 @@ public class CameraSubsystem extends SubsystemBase {
             photonPoseEstimator.setLastPose(estimatedPose);
             // photonPoseEstimator.setReferencePose(estimatedPose);
 
-            Optional<EstimatedRobotPose> optional = photonPoseEstimator.update(image);
+            image.getTargets().forEach(target -> {
+                // System.out.println("Target ID: " + target.getFiducialId() + " Area: " + target.getArea());
+                if (target.getArea() < 0.100) {
+                    image.targets.remove(target);
+                }
+            });
 
-            if (optional.isPresent()) {
-                EstimatedRobotPose newEstimatedPose = optional.get();
-                pose = newEstimatedPose.estimatedPose;
-                poseTime = image.getTimestampSeconds();
+            if (image.targets.size() > 0) {
+                Optional<EstimatedRobotPose> optional = photonPoseEstimator.update(image);
 
-                estimatedPose = pose;
-                changed = true;
+                if (optional.isPresent()) {
+                    EstimatedRobotPose newEstimatedPose = optional.get();
+                    pose = newEstimatedPose.estimatedPose;
+                    poseTime = image.getTimestampSeconds();
+
+                    estimatedPose = pose;
+                    changed = true;
+                }
             }
         }
     }
