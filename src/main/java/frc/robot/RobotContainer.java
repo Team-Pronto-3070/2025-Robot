@@ -175,14 +175,21 @@ public class RobotContainer {
       ledSubsystem.setColor(color);
     }));
 
-    NamedCommands.registerCommand("L1", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(1)));
-    NamedCommands.registerCommand("L2", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(2)));
-    NamedCommands.registerCommand("L3", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(3)));
+    NamedCommands.registerCommand("L1", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(1)).andThen(
+        Commands.waitSeconds(2).until(new Trigger(() -> elevatorSubsystem.getHeight() >= Constants.Elevator.L1 - 1))));
+
+    NamedCommands.registerCommand("L2", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(2)).andThen(
+        Commands.waitSeconds(2).until(new Trigger(() -> elevatorSubsystem.getHeight() >= Constants.Elevator.L2 - 1))));
+
+    NamedCommands.registerCommand("L3", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(3)).andThen(
+        Commands.waitSeconds(2).until(new Trigger(() -> elevatorSubsystem.getHeight() >= Constants.Elevator.L3 - 1))));
+
+    NamedCommands.registerCommand("L4", elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(4)).andThen(
+        Commands.waitSeconds(2).until(new Trigger(() -> elevatorSubsystem.getHeight() >= Constants.Elevator.L4 - 1))));
+
     // NamedCommands.registerCommand("L4", elevatorSubsystem.runOnce(() ->
-    // elevatorSubsystem.setLevel(4)).andThen(Commands.waitSeconds(2).until(new
-    // Trigger(() -> elevatorSubsystem.getLevel() == 4))));
-    NamedCommands.registerCommand("L4",
-        elevatorSubsystem.runOnce(() -> elevatorSubsystem.setLevel(4)).andThen(Commands.waitSeconds(1)));
+    // elevatorSubsystem.setLevel(4)).andThen(Commands.waitSeconds(1)));
+
     // NamedCommands.registerCommand("L4", elevatorSubsystem.runOnce(() ->
     // elevatorSubsystem.setLevel(4)));
 
@@ -198,13 +205,13 @@ public class RobotContainer {
             // .withVelocityX(xLimiter.calculate(oi.processed_drive_x.getAsDouble()) *
             // -MaxSpeed
             .withVelocityX(oi.processed_drive_x.getAsDouble() * -MaxSpeed
-                * Constants.Elevator.maxSpeeds[elevatorSubsystem.getLevel()]) // Drive forward
+                * Constants.Elevator.maxSpeeds[elevatorSubsystem.getTargetLevel()]) // Drive forward
             // with
             // negative Y (forward)
             // .withVelocityY(yLimiter.calculate(oi.processed_drive_y.getAsDouble()) *
             // -MaxSpeed
             .withVelocityY(oi.processed_drive_y.getAsDouble() * -MaxSpeed
-                * Constants.Elevator.maxSpeeds[elevatorSubsystem.getLevel()]) // Drive left with negative X (left)
+                * Constants.Elevator.maxSpeeds[elevatorSubsystem.getTargetLevel()]) // Drive left with negative X (left)
             // .withRotationalRate(rLimiter.calculate(oi.processed_drive_rot.getAsDouble())
             // * MaxAngularRate) // Drive
             .withRotationalRate(oi.processed_drive_rot.getAsDouble() * MaxAngularRate) // Drive

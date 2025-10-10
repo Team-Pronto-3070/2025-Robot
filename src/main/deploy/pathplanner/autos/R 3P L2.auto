@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "L1"
+            "pathName": "R Start to E"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "R Start to D"
+            "name": "L2"
           }
         },
         {
@@ -25,55 +25,55 @@
         {
           "type": "path",
           "data": {
-            "pathName": "D to Coral Station R"
+            "pathName": "E to Coral Station R"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Intake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "L1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Coral Station R to C"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "C to Coral Station R"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "L1"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "Coral Station R to B"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B to Coral Station R"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Coral Station R to A"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L2"
           }
         },
         {

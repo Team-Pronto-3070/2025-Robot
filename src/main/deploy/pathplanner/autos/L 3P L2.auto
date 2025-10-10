@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "L2"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "L Start to J"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L2"
           }
         },
         {
@@ -35,15 +35,15 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "L2"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Coral Station L to A"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L2"
           }
         },
         {
@@ -65,15 +65,15 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "L2"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Coral Station L to B"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L2"
           }
         },
         {

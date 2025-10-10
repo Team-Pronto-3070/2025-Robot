@@ -7,25 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center to Coral Station R"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
+            "pathName": "L Start to K"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "L4"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Coral Station R to B"
           }
         },
         {
@@ -37,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "B to Coral Station R"
+            "pathName": "K to Coral Station L"
           }
         },
         {
@@ -47,15 +35,45 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "Coral Station L to L"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "L4"
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Score"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Coral Station R to A"
+            "pathName": "L to Coral Station L"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Coral Station L to A"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4"
           }
         },
         {
@@ -67,7 +85,7 @@
       ]
     }
   },
-  "resetOdom": false,
+  "resetOdom": true,
   "folder": null,
   "choreoAuto": false
 }

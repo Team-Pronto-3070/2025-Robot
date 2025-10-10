@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "L1"
+            "pathName": "R Start to D"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "L Start to K"
+            "name": "L4"
           }
         },
         {
@@ -25,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "K to Coral Station L"
+            "pathName": "D to Coral Station R"
           }
         },
         {
@@ -35,15 +35,15 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "L1"
+            "pathName": "Coral Station R to C"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Coral Station L to L"
+            "name": "L4"
           }
         },
         {
@@ -55,7 +55,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L to Coral Station L"
+            "pathName": "C to Coral Station R"
           }
         },
         {
@@ -65,15 +65,15 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "L1"
+            "pathName": "Coral Station R to B"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Coral Station L to A"
+            "name": "L4"
           }
         },
         {
@@ -85,7 +85,7 @@
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }

@@ -98,33 +98,34 @@ public class ElevatorSubsystem extends SubsystemBase {
     private void goTo(double targetHeight) {
         // this.runOnce(() -> {
 
-            final MotionMagicVoltage m_request = new MotionMagicVoltage(0);
+        final MotionMagicVoltage m_request = new MotionMagicVoltage(0);
 
-            leftMotor.setControl(m_request.withPosition(
-                    Math.min(Math.max(targetHeight, Constants.Elevator.minHeight),
-                            Constants.Elevator.maxHeight)
-                            * Constants.Elevator.inToR));
+        leftMotor.setControl(m_request.withPosition(
+                Math.min(Math.max(targetHeight, Constants.Elevator.minHeight),
+                        Constants.Elevator.maxHeight)
+                        * Constants.Elevator.inToR));
 
-            rightMotor.setControl(m_request.withPosition(
-                    Math.min(Math.max(targetHeight, Constants.Elevator.minHeight),
-                            Constants.Elevator.maxHeight)
-                            * -Constants.Elevator.inToR));
+        rightMotor.setControl(m_request.withPosition(
+                Math.min(Math.max(targetHeight, Constants.Elevator.minHeight),
+                        Constants.Elevator.maxHeight)
+                        * -Constants.Elevator.inToR));
         // }).until(() -> Math
-        //         .abs(leftMotor.getPosition().getValueAsDouble() - (targetHeight *
-        //                 Constants.Elevator.inToR)) < 1)
-        //         .andThen(() -> {
+        // .abs(leftMotor.getPosition().getValueAsDouble() - (targetHeight *
+        // Constants.Elevator.inToR)) < 1)
+        // .andThen(() -> {
 
-        //             if (targetHeight == 0) {
-        //                 this.runOnce(() -> {
-        //                     leftMotor.set(-0.1);
-        //                 }).until(() -> leftMotor.getSupplyCurrent().getValueAsDouble() > 10).withTimeout(0.5)
-        //                         .andThen(() -> {
-        //                             leftMotor.set(0);
-        //                             leftMotor.setPosition(0);
-        //                             rightMotor.setPosition(0);
-        //                         }).schedule();
-        //             }
-        //         });
+        // if (targetHeight == 0) {
+        // this.runOnce(() -> {
+        // leftMotor.set(-0.1);
+        // }).until(() -> leftMotor.getSupplyCurrent().getValueAsDouble() >
+        // 10).withTimeout(0.5)
+        // .andThen(() -> {
+        // leftMotor.set(0);
+        // leftMotor.setPosition(0);
+        // rightMotor.setPosition(0);
+        // }).schedule();
+        // }
+        // });
     }
 
     // Move the elevator up by a specified amount (in sensor units)
@@ -145,8 +146,13 @@ public class ElevatorSubsystem extends SubsystemBase {
         setLevel(Math.max(level - 1, 0));
     }
 
-    public int getLevel() {
+    public int getTargetLevel() {
         return level;
+    }
+
+    /** Returns the current elevator height in inches */
+    public double getHeight() {
+        return leftMotor.getPosition().getValueAsDouble() / Constants.Elevator.inToR;
     }
 
     public void stop() {
@@ -161,7 +167,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         // leftMotor.setPosition(0);
         // rightMotor.setPosition(0);
         // }
-        SmartDashboard.putNumber("Elevator Height",
-                leftMotor.getPosition().getValueAsDouble() / Constants.Elevator.inToR);
+        SmartDashboard.putNumber("Elevator Height", getHeight());
     }
 }
