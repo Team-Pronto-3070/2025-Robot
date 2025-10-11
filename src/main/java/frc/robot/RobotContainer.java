@@ -87,25 +87,27 @@ public class RobotContainer {
   // private final Pose2d coralStationR = new Pose2d(0, 0,
   // Rotation2d.fromDegrees(0));
 
+  private final Pose2d[] stalkPositions = new Pose2d[12];
+
   // ! DOES NOT USE, UPDATES VALUES FROM PATHPLANNER
-  private final Pose2d[] stalkPositions = { // A-L
-      new Pose2d(3.50, 4.05, Rotation2d.fromDegrees(0)),
-      new Pose2d(3.50, 3.80, Rotation2d.fromDegrees(0)),
-      new Pose2d(3.96, 3.14, Rotation2d.fromDegrees(60)),
-      new Pose2d(4.36, 3.05, Rotation2d.fromDegrees(60)),
-      new Pose2d(5.54, 3.46, Rotation2d.fromDegrees(120)),
-      new Pose2d(4.90, 3.56, Rotation2d.fromDegrees(120)),
-      new Pose2d(5.51, 3.93, Rotation2d.fromDegrees(180)),
-      new Pose2d(5.29, 4.34, Rotation2d.fromDegrees(180)),
-      new Pose2d(5.01, 4.83, Rotation2d.fromDegrees(-120)),
-      new Pose2d(4.75, 4.68, Rotation2d.fromDegrees(-120)),
-      new Pose2d(3.96, 4.93, Rotation2d.fromDegrees(-60)),
-      new Pose2d(3.70, 4.73, Rotation2d.fromDegrees(-60)),
-  };
+  // private final Pose2d[] stalkPositions = { // A-L
+  // new Pose2d(3.50, 4.05, Rotation2d.fromDegrees(0)),
+  // new Pose2d(3.50, 3.80, Rotation2d.fromDegrees(0)),
+  // new Pose2d(3.96, 3.14, Rotation2d.fromDegrees(60)),
+  // new Pose2d(4.36, 3.05, Rotation2d.fromDegrees(60)),
+  // new Pose2d(5.54, 3.46, Rotation2d.fromDegrees(120)),
+  // new Pose2d(4.90, 3.56, Rotation2d.fromDegrees(120)),
+  // new Pose2d(5.51, 3.93, Rotation2d.fromDegrees(180)),
+  // new Pose2d(5.29, 4.34, Rotation2d.fromDegrees(180)),
+  // new Pose2d(5.01, 4.83, Rotation2d.fromDegrees(-120)),
+  // new Pose2d(4.75, 4.68, Rotation2d.fromDegrees(-120)),
+  // new Pose2d(3.96, 4.93, Rotation2d.fromDegrees(-60)),
+  // new Pose2d(3.70, 4.73, Rotation2d.fromDegrees(-60)),
+  // };
 
-  private final int[] blueTags = { 18, 17, 22, 21, 20, 19 };
+  // private final int[] blueTags = { 18, 17, 22, 21, 20, 19 };
 
-  private final int[] redTags = { 7, 8, 9, 10, 11, 6 };
+  // private final int[] redTags = { 7, 8, 9, 10, 11, 6 };
 
   // private Pose2d targetPose = new Pose2d(1.5, 1.5, Rotation2d.fromDegrees(45));
 
